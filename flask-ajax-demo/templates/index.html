@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <button class="delete-button"
+            data-href="{{ url_for('.ajax_delete') }}"
+            onclick="confirm('Are you sure?')">
+        Delete
+    </button>
+{% endblock %}

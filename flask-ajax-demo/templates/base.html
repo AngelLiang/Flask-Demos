@@ -1,0 +1,17 @@
+<html>
+<head>
+    {% block head %}
+        <title>{% block title %}{% endblock %}</title>
+    {% endblock %}
+</head>
+<body>
+    {% block content %}{% endblock %}
+    {% block scripts %}
+        <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript">
+            var csrf_token = "{{ csrf_token() }}";
+        </script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% endblock %}
+</body>
+</html>
