@@ -25,10 +25,13 @@
 
     <script>
       $(function() {
+        var columns = JSON.parse('{{ columns|tojson|safe }}')
+        var data = JSON.parse('{{ data|tojson|safe }}')
+
         var $table = $('#table');
         $table.bootstrapTable({
-          columns: JSON.parse('{{ columns|tojson|safe }}'),
-          data: JSON.parse('{{ data|tojson|safe }}'),
+          columns: columns,
+          data: data,
 
           treeShowField: 'id',
           parentIdField: 'pid',

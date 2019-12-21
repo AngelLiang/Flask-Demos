@@ -18,8 +18,8 @@
   
     <script type="text/javascript">
         $(function() {
-          var data = JSON.parse('{{ bootstrap_table_options|tojson }}')
-          $('#table').bootstrapTable(data)
+          var options = JSON.parse('{{ bootstrap_table_options|tojson|safe }}')
+          $('#table').bootstrapTable(options)
         })
     </script>
 
