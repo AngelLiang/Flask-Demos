@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block head %}
+      <link href="{{ url_for('static', filename='bootstrap-3.3.7/css/bootstrap.min.css') }}" rel="stylesheet">
+      <link href="{{ url_for('static', filename='bootstrap-table-1.15.5/css/bootstrap-table.min.css') }}" rel="stylesheet">
+      <link href="{{ url_for('static', filename='css/jquery.treegrid.css') }}" rel="stylesheet">
+    {% endblock %}
+  </head>
+  <body>
+
+    {% block content %}
+        <div style="width: 80%;margin: 0 auto">
+            <table id="table"></table>
+        </div>
+    {% endblock %}
+
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='bootstrap-3.3.7/js/bootstrap.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='bootstrap-table-1.15.5/js/bootstrap-table.min.js') }}" type="text/javascript"></script>
+
+    <script src="{{ url_for('static', filename='js/jquery-treegrid-0.3.0.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='bootstrap-table-1.15.5/extensions/treegrid/js/bootstrap-table-treegrid.min.js') }}" type="text/javascript"></script>
+
+    <script>
+      $(function() {
+        var $table = $('#table');
+        $table.bootstrapTable({
+          columns: JSON.parse('{{ columns|tojson|safe }}'),
+          data: JSON.parse('{{ data|tojson|safe }}'),
+
+          treeShowField: 'id',
+          parentIdField: 'pid',
+          // rootParentId: 0,
+          onResetView: function(data) {
+            $table.treegrid({
+              initialState: 'collapsed',// 所有节点都折叠
+              // initialState: 'expanded',// 所有节点都展开，默认展开
+              treeColumn: 0,
+              expanderExpandedClass: 'glyphicon glyphicon-minus', // 图标样式
+              expanderCollapsedClass: 'glyphicon glyphicon-plus',
+              onChange: function() {
+                $table.bootstrapTable('resetWidth');
+              }
+            })
+          }
+
+        })
+      })
+  </script>
+  {% endblock %}
+
+  </body>
+</html>
