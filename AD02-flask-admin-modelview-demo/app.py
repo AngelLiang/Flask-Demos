@@ -21,6 +21,38 @@ class User(db.Model):
     password = db.Column(db.String(128))
 
 
+post_tags_table = db.Table(
+    'post_tags', db.Model.metadata,
+    db.Column('post_id', db.Integer,
+              db.ForeignKey('post.id')),
+    db.Column('tag_id', db.Integer,
+              db.ForeignKey('tag.id'))
+)
+
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(128))
+    text = db.Column(db.Text)
+    date = db.Column(db.Date)
+
+    user_id = db.Column(db.Integer(), db.ForeignKey(User.id))
+    user = db.relationship(User, backref='posts')
+
+    tags = db.relationship('Tag', secondary=post_tags_table)
+
+    def __str__(self):
+        return "{}".format(self.title)
+
+
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode(64))
+
+    def __str__(self):
+        return "{}".format(self.name)
+
+
 class UserModelView(ModelView):
     column_list = ('id', 'name', 'username')
     column_default_sort = 'id'
@@ -30,10 +62,22 @@ class UserModelView(ModelView):
     export_types = ['csv', 'xls']
 
 
+class PostModelView(ModelView):
+    column_list = ('id', 'title', 'date', 'user')
+
+    form_ajax_refs = {
+        'user': {
+            'fields': (User.name,)
+        }
+    }
+
+
 admin.add_view(UserModelView(User, db.session))
+admin.add_view(PostModelView(Post, db.session))
 
 
-def initdata(user_count=50):
+def initdata(user_count=50, post_count=100):
+    import random
     db.drop_all()
     db.create_all()
 
@@ -42,6 +86,16 @@ def initdata(user_count=50):
         user = User(name=f'name{i+1}', username=f'user{i+1}')
         users.append(user)
     db.session.add_all(users)
+    db.session.commit()
+
+    posts = []
+    for i in range(post_count):
+        post = Post(
+            title=f'title{i+1}',
+            user_id=random.randrange(1, User.query.count())
+        )
+        posts.append(post)
+    db.session.add_all(posts)
     db.session.commit()
 
 
