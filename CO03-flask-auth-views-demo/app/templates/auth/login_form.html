@@ -1,0 +1,36 @@
+{% import "auth/macros.html" as auth %}
+
+<form role="form" action="" method="post" class="form-horizontal">
+    {% set show_label = config.get('LOGIN_FORM_LABEL_SHOW') == true %}
+    {{ form.hidden_tag() if form.hidden_tag }}
+    <fieldset>
+        {# 用户名 #}
+        {{ auth.render_field(form, form.username) }}
+        {# 密码 #}
+        {{ auth.render_field(form, form.password) }}
+        {# 验证码 #}
+        {% if show_verify_code %}
+            {{ auth.verify_code(form, show_label) }}
+        {% endif %}
+
+        <div class="form-group">
+            {% set register_enable = config.get('REGISTER_ENABLE') %}
+            <div class="col-md-4 text-left">
+            <div class='checkbox'>
+                <label>
+                    <input name="remember" type="checkbox" value="Remember Me">记住我
+                </label>
+                </div>
+            </div>
+            {% if register_enable %}
+                <div class="col-md-8 text-right">
+                    <a href="{{ url_for('register') }}">新用户吗？请注册。</a>
+                </div>
+            {% endif %}
+
+        </div>
+
+        {{ auth.render_button(form, form.submit) }}
+        {# <input type="submit" class="btn btn-lg btn-block btn-success" value="登录"/> #}
+    </fieldset>
+</form>

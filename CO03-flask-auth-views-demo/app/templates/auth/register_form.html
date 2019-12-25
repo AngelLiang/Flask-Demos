@@ -1,0 +1,60 @@
+{% import "auth/macros.html" as auth %}
+
+<form role="form" action="" method="post" class="form-horizontal">
+    {% set show_label = config.get('LOGIN_FORM_LABEL_SHOW') == true %}
+    {{ form.hidden_tag() if form.hidden_tag }}
+    <fieldset>
+        {# 用户名 #}
+        {{ auth.render_field(form, form.username) }}
+        {# <div class="form-group {{ 'has-error' if form.username.errors else '' }}">
+            {% if show_label %}
+                <label for="{{ form.username.id }}" class="col-md-3 control-label">{{ form.username.label.text }}</label>
+            {% endif %}
+            <div class="{{ 'col-md-9' if show_label else 'col-md-12' }}">
+                {{ form.username(class_="form-control", placeholder=form.username.label.text, autofocus=true) }}
+            </div>
+            <div class="col-md-12">
+                <div class="col-md-offset-3 help-block input-errors">
+                    {% for e in form.username.errors if e is string %}
+                        <span>{{ e }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div> #}
+
+        {# 密码 #}
+        {{ auth.render_field(form, form.password) }}
+        {# <div class="form-group">
+            {% if show_label %}
+                <label for="{{ form.password.id }}" class="col-md-3 control-label">{{ form.password.label.text }}</label>
+            {% endif %}
+            <div class="{{ 'col-md-9' if show_label else 'col-md-12' }}">
+                {{ form.password(class_="form-control", placeholder=form.password.label.text, autofocus=false) }}
+            </div>
+        </div> #}
+
+        {# 确认密码 #}
+        {{ auth.render_field(form, form.comfirm_password) }}
+        {# <div class="form-group">
+            {% if show_label %}
+                <label for="{{ form.comfirm_password.id }}" class="col-md-3 control-label">{{ form.comfirm_password.label.text }}</label>
+            {% endif %}
+            <div class="{{ 'col-md-9' if show_label else 'col-md-12' }}">
+                {{ form.comfirm_password(class_="form-control", placeholder=form.comfirm_password.label.text, autofocus=false) }}
+            </div>
+        </div> #}
+
+        {# 验证码 #}
+        {% if config.get('LOGIN_FORM_VERIFY_CODE_ENABLE') == true %}
+            {{ auth.verify_code(form, show_label) }}
+        {% endif %}
+
+        <div class="form-group">
+            <div class="col-md-12 text-right">
+                <a href=" {{ url_for('login') }} ">已经注册吗？请登录。</a>
+            </div>
+        </div>
+
+        <input type="submit" class="btn btn-lg btn-block" value="注册"/>
+    </fieldset>
+</form>
