@@ -8,6 +8,8 @@ verify_ssl = true
 [packages]
 flask = "*"
 flask-httpauth = "*"
+python-dotenv = "*"
+flask-admin = "*"
 
 [requires]
 python_version = "3.6"
