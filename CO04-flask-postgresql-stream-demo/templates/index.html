@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>server-sent events</title>
+    <script>
+        var eventSource = new EventSource("/message/1");
+        eventSource.onmessage = function(event) {
+            var node = document.createElement("div");
+            var text = document.createTextNode(event.data);
+            node.appendChild(text);
+            document.getElementById("messages").appendChild(node);
+        };
+    </script>
+</head>
+<body>
+    Listen:
+    <span id="messages"></span>
+</body>
+</html>
