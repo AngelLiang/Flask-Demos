@@ -33,6 +33,7 @@
 | CO01 | flask-visit-with-key  | URL 带 key 访问示例    |
 | CO02 | flask-basic-auth-demo | 基本认证示例           |
 | CO03 | flask-auth-views-demo | 用户登录和注册视图示例 |
+| CO03 | flask-postgresql-stream-demo | 用 Flask 和 PostgreSQL 流化数据 |
 
 ### JQuery 相关示例
 
