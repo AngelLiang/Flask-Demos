@@ -28,12 +28,22 @@
 
 缩写：CO
 
-| 编号 | 示例名称              | 说明                   |
-| ---- | --------------------- | ---------------------- |
-| CO01 | flask-visit-with-key  | URL 带 key 访问示例    |
-| CO02 | flask-basic-auth-demo | 基本认证示例           |
-| CO03 | flask-auth-views-demo | 用户登录和注册视图示例 |
+| 编号 | 示例名称                     | 说明                            |
+| ---- | ---------------------------- | ------------------------------- |
+| CO01 | flask-visit-with-key         | URL 带 key 访问示例             |
+| CO02 | flask-basic-auth-demo        | 基本认证示例                    |
+| CO03 | flask-auth-views-demo        | 用户登录和注册视图示例          |
 | CO03 | flask-postgresql-stream-demo | 用 Flask 和 PostgreSQL 流化数据 |
+
+### 日志示例
+
+缩写：LG
+
+| 编号 | 示例名称                          | 说明                            |
+| ---- | --------------------------------- | ------------------------------- |
+| LG01 | flask-logging-demo                | 给 Flask 配置日志功能           |
+| LG02 | flask-remove-default-logging-demo | 移除 Flask 默认的日志处理器     |
+| LG03 | flask-config-logging-from-file    | 从日志配置文件中配置 Flask 日志 |
 
 ### JQuery 相关示例
 
