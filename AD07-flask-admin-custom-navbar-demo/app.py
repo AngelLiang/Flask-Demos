@@ -1,5 +1,6 @@
-from flask import Flask, flash
+from flask import Flask
 from flask_admin import Admin
+from flask_admin.base import MenuLink
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin.contrib.sqla import ModelView
 
@@ -74,8 +75,43 @@ class PostModelView(ModelView):
     }
 
 
+def admin_add_category(admin, target_category):
+    """
+    :param admin: flask-admin 实例
+    :param target_category: str, 分类名称
+
+    Usage::
+
+        category = 'category'
+        admin_add_category(admin, category)
+        admin.add_sub_category('user', category)
+        admin.add_view(ShareUserModelView(User, db.session, name='user', category='user'))
+
+    """
+    from flask_admin.menu import MenuCategory
+
+    cat_text = target_category.decode('utf-8')\
+        if isinstance(target_category, bytes) else target_category
+    category = admin._menu_categories.get(cat_text)
+    if category is None:
+        category = MenuCategory(target_category)
+        category.class_name = admin.category_icon_classes.get(cat_text)
+        admin._menu_categories[cat_text] = category
+        admin._menu.append(category)
+        return True
+
+
 admin.add_view(UserModelView(User, db.session))
 admin.add_view(PostModelView(Post, db.session))
+
+admin_add_category(admin, 'Other')
+admin.add_sub_category(name='Links', parent_name='Other')
+admin.add_link(MenuLink(name='Back Home', url='/', category='Links'))
+admin.add_link(MenuLink(name='Flask-Demos', url='https://github.com/AngelLiang/Flask-Demos',category='Links'))
+admin.add_link(MenuLink(name='Baidu', url='http://www.baidu.com/', category='Links'))
+
+# 添加到banav的右上角
+admin.add_links(MenuLink(name='Logout', url='/'))
 
 
 def initdata(user_count=50, post_count=100):

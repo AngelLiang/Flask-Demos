@@ -1,4 +1,5 @@
 {% import 'admin/layout.html' as layout with context -%}
+{% import 'admin/menu.html' as menu_layout with context -%}
 {% extends 'admin/base.html' %}
 
 {%- block head -%}
@@ -41,25 +42,11 @@
     </div>
 
     <!-- navbar content -->
-    <div class="collapse navbar-collapse" id="admin-navbar-collapse" style="padding-top: 20px">
+    <div class="collapse navbar-collapse" id="admin-navbar-collapse">
         
-        {# main_menu: 默认左对齐 #}
-        {% block main_menu %}
-        {# <ul class="nav navbar-nav">
-        {{ layout.menu() }}
-        </ul> #}
-        <div class="navbar-default sidebar" role="navigation">
-            <div class="sidebar-nav navbar-collapse">
-                <ul class="nav" id="side-menu">
-                {{ layout.menu() }}
-                </ul>
-            </div>
-        </div>
-        {% endblock %}
-
         {# menu_links: 右对齐 #}
         {% block menu_links %}
-        <ul class="nav navbar-nav navbar-right">
+        <ul class="nav navbar-nav navbar-right" style="margin-right: 5px">
         {{ layout.menu_links() }}
         </ul>
         {% endblock %}
@@ -68,6 +55,16 @@
         {% block access_control %}
         {% endblock %}
     </div>
+
+        {% block main_menu %}
+        <div class="navbar-default sidebar" role="navigation" style="margin-top: 20px">
+            <div class="sidebar-nav navbar-collapse">
+                <ul class="nav" id="side-menu">
+                {{ menu_layout.menu() }}
+                </ul>
+            </div>
+        </div>
+        {% endblock %}
 
     </nav>
 
