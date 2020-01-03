@@ -18,6 +18,7 @@
 | AD04 | flask-admin-fileadmin-demo          | 使用 flask-admin 快速搭建一个文件服务器           |
 | AD05 | flask-admin-babel-demo              | 给 flask-admin 添加语言本地化功能                 |
 | AD06 | flask-admin-dashboard-demo          | 使用 sb-admin-2 样式给 flask-admin 添加 Dashboard |
+| AD07 | flask-admin-custom-navbar-demo      | 使用 sb-admin-2 样式客制化 flask-admin navbar     |
 
 ### Bootstrap 相关示例
 
