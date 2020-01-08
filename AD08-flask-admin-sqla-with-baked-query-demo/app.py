@@ -11,7 +11,7 @@ ModelViewWithBakedQueryMixin = mixin.ModelViewWithBakedQueryMixin
 with_baked_query = mixin.with_baked_query
 
 
-db = SQLAlchemy()
+db = SQLAlchemy(session_options={'enable_baked_queries': True})
 admin = Admin(template_mode='bootstrap3')
 toolbar = DebugToolbarExtension()
 
@@ -98,7 +98,10 @@ class PostModelViewWithBakedQuery(PostModelView):
 
 admin.add_view(UserModelView(User, db.session))
 admin.add_view(UserModelViewWithBakedQuery(
-    User, Session(db.engine),
+    # User, db.session,  # error
+    # User, db.create_session({'enable_baked_queries': True})(),
+    User, db.create_session({})(),
+    # User, Session(db.engine),
     name='User With BakedQuery', endpoint='user_with_bakedquery'))
 
 admin.add_view(PostModelView(Post, db.session))
