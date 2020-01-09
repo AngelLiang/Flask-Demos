@@ -98,15 +98,12 @@ class PostModelViewWithBakedQuery(PostModelView):
 
 admin.add_view(UserModelView(User, db.session))
 admin.add_view(UserModelViewWithBakedQuery(
-    # User, db.session,  # error
-    # User, db.create_session({'enable_baked_queries': True})(),
-    User, db.create_session({})(),
-    # User, Session(db.engine),
+    User, db.session,
     name='User With BakedQuery', endpoint='user_with_bakedquery'))
 
 admin.add_view(PostModelView(Post, db.session))
 admin.add_view(PostModelViewWithBakedQuery(
-    Post, Session(db.engine),
+    Post, db.session,
     name='Post With BakedQuery', endpoint='post_with_bakedquery'))
 
 

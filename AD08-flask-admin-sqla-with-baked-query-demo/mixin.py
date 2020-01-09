@@ -230,7 +230,7 @@ class ModelViewWithBakedQueryMixin:
                 query, count_query, joins, count_joins, filters)
 
         # Calculate number of rows if necessary
-        count = count_query(self.session).scalar() if count_query else None
+        count = count_query(self.session()).scalar() if count_query else None
 
         # Auto join
         for j in self._auto_joins:
@@ -246,7 +246,7 @@ class ModelViewWithBakedQueryMixin:
 
         # Execute if needed
         if execute:
-            query = query(self.session).all()
+            query = query(self.session()).all()
 
         return count, query
 
