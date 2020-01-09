@@ -40,6 +40,14 @@
 | CO03 | flask-auth-views-demo        | 用户登录和注册视图示例          |
 | CO03 | flask-postgresql-stream-demo | 用 Flask 和 PostgreSQL 流化数据 |
 
+### JQuery 相关示例
+
+缩写：JQ
+
+| 编号 | 示例名称        | 说明                                     |
+| ---- | --------------- | ---------------------------------------- |
+| JQ01 | flask-ajax-demo | 使用 Ajax 请求 Flask 后端，带 csrf token |
+
 ### 日志示例
 
 缩写：LG
@@ -50,10 +58,10 @@
 | LG02 | flask-remove-default-logging-demo | 移除 Flask 默认的日志处理器     |
 | LG03 | flask-config-logging-from-file    | 从日志配置文件中配置 Flask 日志 |
 
-### JQuery 相关示例
+### SQLAlchemy 相关示例
 
-缩写：JQ
+缩写：SQ
 
-| 编号 | 示例名称        | 说明                                     |
-| ---- | --------------- | ---------------------------------------- |
-| JQ01 | flask-ajax-demo | 使用 Ajax 请求 Flask 后端，带 csrf token |
+| 编号 | 示例名称                          | 说明                            |
+| ---- | --------------------------------- | ------------------------------- |
+| SQ01 | flask-sqlalchemy-query-cache-demo | 给 SQLAlchemy 的 Query 添加缓存 |
