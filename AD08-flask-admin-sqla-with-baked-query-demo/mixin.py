@@ -1,6 +1,7 @@
 import inspect
 import warnings
 
+from sqlalchemy import bindparam
 from sqlalchemy.ext import baked
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm import joinedload, aliased
@@ -14,6 +15,8 @@ from flask_admin.contrib.sqla import form, filters as sqla_filters, tools
 
 
 class ModelViewWithBakedQueryMixin:
+
+    bakery = baked.bakery()
 
     def _apply_path_joins(self, query, joins, path, inner_join=True):
         """
@@ -76,10 +79,16 @@ class ModelViewWithBakedQueryMixin:
             column = sort_field if alias is None else getattr(
                 alias, sort_field.key)
 
+            # if sort_desc:
+            #     query += lambda q: q.order_by(desc(column))
+            # else:
+            #     query += lambda q: q.order_by(column)
+
             if sort_desc:
-                query += lambda q: q.order_by(desc(column))
+                query += lambda q: q.order_by(desc(bindparam('order_by')))
             else:
-                query += lambda q: q.order_by(column)
+                query += lambda q: q.order_by(bindparam('order_by'))
+            self.bakery_query_params['order_by'] = column.name
 
         return query, joins
 
@@ -174,10 +183,13 @@ class ModelViewWithBakedQueryMixin:
             page_size = self.page_size
 
         if page_size:
-            query += lambda q: q.limit(page_size)
+            query += lambda q: q.limit(bindparam('page_size'))
+            self.bakery_query_params['page_size'] = page_size
 
         if page and page_size:
-            query += lambda q: q.offset(page * page_size)
+            # query += lambda q: q.offset(page * page_size)
+            query += lambda q: q.offset(bindparam('offset'))
+            self.bakery_query_params['offset'] = page * page_size
 
         return query
 
@@ -246,21 +258,30 @@ class ModelViewWithBakedQueryMixin:
 
         # Execute if needed
         if execute:
-            query = query(self.session()).all()
+            query = query(self.session()).params(
+                **self.bakery_query_params
+            ).all()
 
         return count, query
 
-    bakery = baked.bakery()
+    def get_one(self, id):
+        """override"""
+        return super().get_one(id)
+        # TODO:
+        # q = self.bakery(lambda s: s.query(self.model))
+        # q += lambda q: q.filter(self.model.id == bindparam("id"))
+        # return q(self.session()).params(id=id).one()
 
     def get_query(self):
         """override"""
-        # return self.session.query(self.model)
+        # return super().get_query()
         q = self.bakery(lambda s: s.query(self.model))
+        self.bakery_query_params = {}
         return q
 
     def get_count_query(self):
         """override"""
-        # return self.session.query(func.count('*')).select_from(self.model)
+        # return super().get_count_query()
         q = self.bakery(lambda s: s.query(
             func.count('*')).select_from(self.model))
         return q

@@ -18,6 +18,7 @@ toolbar = DebugToolbarExtension()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '123456790'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = True
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['DEBUG_TB_PROFILER_ENABLED'] = True
 
@@ -72,6 +73,7 @@ class UserModelView(ModelView):
     column_default_sort = 'id'
     column_searchable_list = ('name',)
 
+    can_view_details = True
     can_export = True
     export_max_rows = 1000
     export_types = ['csv', 'xls']
