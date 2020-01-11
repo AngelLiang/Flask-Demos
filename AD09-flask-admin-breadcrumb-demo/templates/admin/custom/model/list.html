@@ -1,0 +1,30 @@
+{% extends 'admin/model/list.html' %}
+{% from 'macros/nav.html' import render_nav_item, render_breadcrumb_item %}
+
+
+{% block body %}
+
+    {% block breadcrumb %}
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+            {% block breadcrumb_items %}
+                {# before #}
+                {% block breadcrumb_items_before %}{% endblock %}
+                {% set parent_category = admin_view.get_category_parent() %}
+                {% if parent_category.name %}
+                    {{ render_breadcrumb_item(admin_view.endpoint+'.index_view', parent_category.name) }}
+                {% endif %}
+                {% if admin_view.category %}
+                    {{ render_breadcrumb_item(admin_view.endpoint+'.index_view', admin_view.category) }}
+                {% endif %}
+                {{ render_breadcrumb_item(admin_view.endpoint+'.index_view', admin_view.name, True) }}
+                {# after #}
+                {% block breadcrumb_items_after %}{% endblock %}
+            {% endblock %}
+            </ol>
+        </nav>
+    {% endblock %}
+
+    {{ super() }}
+
+{% endblock %}
