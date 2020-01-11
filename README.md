@@ -17,8 +17,8 @@
 | AD03 | flask-admin-relation-formatter-demo    | 在 flask-admin 中的 list 页面显示关系对象示例                    |
 | AD04 | flask-admin-fileadmin-demo             | 使用 flask-admin 快速搭建一个文件服务器                          |
 | AD05 | flask-admin-babel-demo                 | 给 flask-admin 添加语言本地化功能                                |
-| AD06 | flask-admin-dashboard-demo             | 使用 sb-admin-2 样式给 flask-admin 添加 Dashboard                |
-| AD07 | flask-admin-custom-navbar-demo         | 使用 sb-admin-2 样式客制化 flask-admin navbar                    |
+| AD06 | flask-admin-dashboard-demo             | 使用 sb-admin-2 前端模板给 flask-admin 添加 Dashboard            |
+| AD07 | flask-admin-custom-navbar-demo         | 使用 sb-admin-2 前端模板客制化 flask-admin navbar                |
 | AD08 | flask-admin-sqla-with-baked-query-demo | 在 flask-admin 的 sqla modelview 中使用 baked_query 提高查询性能 |
 | AD09 | AD09-flask-admin-breadcrumb-demo       | 给 flask-admin 添加 breadcrumb                                   |
 
