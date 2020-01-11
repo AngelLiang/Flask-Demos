@@ -59,6 +59,9 @@ class Tag(db.Model):
 class ModelView(BaseModelView):
 
     list_template = 'admin/custom/model/list.html'
+    details_template = 'admin/custom/model/details.html'
+    create_template = 'admin/custom/model/create.html'
+    edit_template = 'admin/custom/model/edit.html'
 
     def get_category_parent(self, category_name=None):
         if category_name is None:
