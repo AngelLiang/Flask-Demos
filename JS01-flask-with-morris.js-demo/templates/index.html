@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {# line #}
+    <div id="myfirstchart" style="height: 250px;"></div>
+    <br><br><br>
+    {# bar #}
+    <div id="bar"></div>
+    <br><br><br>
+    {# area #}
+    <div id="area"></div>
+{% endblock %}
+
+{% block tail %}
+    <script src="{{ url_for('static', filename='js/myscript.js') }}"></script>
+{% endblock %}
