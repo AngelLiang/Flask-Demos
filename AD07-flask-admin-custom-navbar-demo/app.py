@@ -1,12 +1,14 @@
 from flask import Flask
-from flask_admin import Admin
+from flask_admin import Admin, AdminIndexView
 from flask_admin.base import MenuLink
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin.contrib.sqla import ModelView
 
 
 db = SQLAlchemy()
-admin = Admin(template_mode='bootstrap3')
+admin = Admin(template_mode='bootstrap3', index_view=AdminIndexView(
+    menu_icon_type='glyph', menu_icon_value='glyphicon-home')
+)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '123456790'
@@ -26,10 +28,8 @@ class User(db.Model):
 
 post_tags_table = db.Table(
     'post_tags', db.Model.metadata,
-    db.Column('post_id', db.Integer,
-              db.ForeignKey('post.id')),
-    db.Column('tag_id', db.Integer,
-              db.ForeignKey('tag.id'))
+    db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
 )
 
 
@@ -75,7 +75,7 @@ class PostModelView(ModelView):
     }
 
 
-def admin_add_category(admin, target_category):
+def admin_add_category(admin, target_category, *args, **kwargs):
     """
     :param admin: flask-admin 实例
     :param target_category: str, 分类名称
@@ -85,7 +85,8 @@ def admin_add_category(admin, target_category):
         category = 'category'
         admin_add_category(admin, category)
         admin.add_sub_category('user', category)
-        admin.add_view(ShareUserModelView(User, db.session, name='user', category='user'))
+        admin.add_view(ShareUserModelView(
+            User, db.session, name='user', category='user'))
 
     """
     from flask_admin.menu import MenuCategory
@@ -101,14 +102,21 @@ def admin_add_category(admin, target_category):
         return True
 
 
-admin.add_view(UserModelView(User, db.session))
-admin.add_view(PostModelView(Post, db.session))
+admin.add_view(UserModelView(
+    User, db.session,
+    menu_icon_type='glyph', menu_icon_value='glyphicon-user'))
+admin.add_view(PostModelView(
+    Post, db.session,
+    menu_icon_type='glyph', menu_icon_value='glyphicon-edit'))
 
 admin_add_category(admin, 'Other')
 admin.add_sub_category(name='Links', parent_name='Other')
 admin.add_link(MenuLink(name='Back Home', url='/', category='Links'))
-admin.add_link(MenuLink(name='Flask-Demos', url='https://github.com/AngelLiang/Flask-Demos',category='Links'))
-admin.add_link(MenuLink(name='Baidu', url='http://www.baidu.com/', category='Links'))
+admin.add_link(MenuLink(name='Flask-Demos',
+                        url='https://github.com/AngelLiang/Flask-Demos',
+                        category='Links'))
+admin.add_link(MenuLink(
+    name='Baidu', url='http://www.baidu.com/', category='Links'))
 
 # 添加到banav的右上角
 admin.add_links(MenuLink(name='Logout', url='/'))
