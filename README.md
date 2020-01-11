@@ -20,6 +20,7 @@
 | AD06 | flask-admin-dashboard-demo             | 使用 sb-admin-2 样式给 flask-admin 添加 Dashboard                |
 | AD07 | flask-admin-custom-navbar-demo         | 使用 sb-admin-2 样式客制化 flask-admin navbar                    |
 | AD08 | flask-admin-sqla-with-baked-query-demo | 在 flask-admin 的 sqla modelview 中使用 baked_query 提高查询性能 |
+| AD09 | AD09-flask-admin-breadcrumb-demo       | 给 flask-admin 添加 breadcrumb                                   |
 
 ### Bootstrap 相关示例
 
