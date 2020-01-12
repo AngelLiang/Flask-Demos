@@ -30,5 +30,10 @@ app.config['FLASK_ADMIN_FLUID_LAYOUT'] = True
 admin.init_app(app)
 
 
+@app.route('/')
+def index():
+    return '<a href="/admin/">Click me to go to Admin!</a>'
+
+
 if __name__ == "__main__":
     app.run(debug=True)
