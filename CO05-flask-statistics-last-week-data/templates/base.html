@@ -1,0 +1,20 @@
+<html>
+<head>
+    {% block head %}
+        <title>{% block title %} {{ config.get('APP_NAME', '') }} {% endblock %}</title>
+        {% block head_css %}
+            <link rel="stylesheet" src="{{ url_for('static', filename='css/morris.css') }}">
+        {% endblock %}
+    {% endblock %}
+</head>
+<body>
+    {% block content %}{% endblock %}
+    {% block tail_js %}
+        <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/morris.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/raphael.min.js') }}"></script>
+    {% endblock %}
+    {% block tail %}
+    {% endblock %}
+</body>
+</html>

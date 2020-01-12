@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div>上周文章发表数据</div>
+    <div id="line" style="height: 250px;"></div>
+{% endblock %}
+
+{% block tail %}
+<script>
+    var data = {{ data|tojson|safe }}
+    Morris.Line({
+        element: 'line',
+        data: data,
+        xkey: 'period',
+        ykeys: ['count'],
+        labels: ['Count'],
+        xLabels: "day",
+        resize: true,
+    });
+</script>
+{% endblock %}
