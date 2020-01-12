@@ -20,7 +20,10 @@
 | AD06 | flask-admin-dashboard-demo             | 使用 sb-admin-2 前端模板给 flask-admin 添加 Dashboard            |
 | AD07 | flask-admin-custom-navbar-demo         | 使用 sb-admin-2 前端模板客制化 flask-admin navbar                |
 | AD08 | flask-admin-sqla-with-baked-query-demo | 在 flask-admin 的 sqla modelview 中使用 baked_query 提高查询性能 |
-| AD09 | AD09-flask-admin-breadcrumb-demo       | 给 flask-admin 添加 breadcrumb                                   |
+| AD09 | flask-admin-breadcrumb-demo            | 给 flask-admin 添加 breadcrumb                                   |
+| AD10 | flask-admin-with-auth-demo             | 给 flask-admin 添加登录注册功能                                  |
+| AD11 | flask-admin-with-sqlalchemy-demo       | flask-admin 使用原始的 SQLALchemy 进行数据查询                   |
+| AD12 | flask-admin-sqla-automap-demo          | flask-admin 使用 SQLALchemy 的 Automap 功能进行数据表的自动映射  |
 
 ### Bootstrap 相关示例
 
