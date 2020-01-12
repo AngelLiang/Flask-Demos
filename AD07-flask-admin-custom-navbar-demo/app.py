@@ -103,15 +103,15 @@ def admin_add_category(admin, target_category, *args, **kwargs):
 
 
 admin.add_view(UserModelView(
-    User, db.session,
+    User, db.session, category='Account',
     menu_icon_type='glyph', menu_icon_value='glyphicon-user'))
 admin.add_view(PostModelView(
-    Post, db.session,
+    Post, db.session, category='Account',
     menu_icon_type='glyph', menu_icon_value='glyphicon-edit'))
 
 admin_add_category(admin, 'Other')
 admin.add_sub_category(name='Links', parent_name='Other')
-admin.add_link(MenuLink(name='Back Home', url='/', category='Links'))
+admin.add_link(MenuLink(name='Back Home', url='/admin', category='Other'))
 admin.add_link(MenuLink(name='Flask-Demos',
                         url='https://github.com/AngelLiang/Flask-Demos',
                         category='Links'))
