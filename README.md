@@ -38,13 +38,13 @@
 
 缩写：CO
 
-| 编号 | 示例名称                        | 说明                              |
-| ---- | ------------------------------- | --------------------------------- |
-| CO01 | flask-visit-with-key            | URL 带 key 访问示例               |
-| CO02 | flask-basic-auth-demo           | 基本认证示例                      |
-| CO03 | flask-auth-views-demo           | 用户登录和注册视图示例            |
-| CO04 | flask-postgresql-stream-demo    | 用 Flask 和 PostgreSQL 流化数据   |
-| CO05 | flask-statistics-last-week-data | 使用 morris.js 统计上周的数据示例 |
+| 编号 | 示例名称                        | 说明                                      |
+| ---- | ------------------------------- | ----------------------------------------- |
+| CO01 | flask-visit-with-key            | URL 带 key 访问示例                       |
+| CO02 | flask-basic-auth-demo           | 基本认证示例                              |
+| CO03 | flask-auth-views-demo           | 基于 Flask 的登录认证等页面示例，带验证码 |
+| CO04 | flask-postgresql-stream-demo    | 用 Flask 和 PostgreSQL 流化数据           |
+| CO05 | flask-statistics-last-week-data | 使用 morris.js 统计上周的数据示例         |
 
 ### JQuery 相关示例
 
