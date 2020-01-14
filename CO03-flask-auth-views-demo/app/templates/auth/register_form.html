@@ -18,11 +18,8 @@
 
         <div class="form-group">
             <div class="col-md-12 text-right">
-                {% if link %}
-                    {{ link|safe }}
-                {% else %}
-                    {# <a href="{{ url_for('login') }}">已有帐号？请登录。</a> #}
-                    <a href="/auth/login">已有帐号？请登录。</a>
+                {% if login_link %}
+                    {{ login_link|safe }}
                 {% endif %}
             </div>
         </div>

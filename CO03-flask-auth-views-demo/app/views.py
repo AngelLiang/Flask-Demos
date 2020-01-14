@@ -1,6 +1,7 @@
+from sqlalchemy.exc import IntegrityError
 from flask import render_template, request, redirect, url_for, flash, current_app, abort
 from flask_login import current_user, login_user, logout_user, login_required
-from sqlalchemy.exc import IntegrityError
+from wtforms.validators import ValidationError
 
 from . import app
 from .extensions import db
@@ -9,9 +10,11 @@ from .forms import LoginForm, RegisterForm
 
 
 @app.route('/')
+@app.route('/index')
 @login_required
 def index():
-    return f'<div>hello {current_user.username}, <a href="/auth/logout">logout</a></div>'
+    href = url_for('logout')
+    return f'<div>hello {current_user.username}, <a href="{href}">logout</a></div>'
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -22,21 +25,18 @@ def login():
         return redirect(redirect_url)
 
     form = LoginForm()
-
     if request.method == 'POST' and form.validate():
-        username = form.data['username']
-        password = form.data['password']
-        remember_me = form.data['remember_me']
+        user = form.get_user()
+        # remember: https://flask-login.readthedocs.io/en/latest/#remember-me
+        login_user(user, remember=form.remember_me.data)
+        return redirect(redirect_url)
 
-        # TODO:
-        user = User.query.filter_by(username=username).first()
-
-        if user is not None and user.validate_password(password):
-            login_user(user, remember=remember_me)
-            return redirect(redirect_url)
-        flash('用户名或密码错误', 'error')
-    link = '<p>新用户吗？<a href="' + url_for('register') + '">请注册</a>。</p>'
-    return render_template('auth/login.html', form=form, link=link)
+    if current_app.config.get('AUTH_REGISTER_ENABLE'):
+        href = url_for('register')
+        register_link = f'<p>新用户吗？<a href="{href}">请注册</a>。</p>'
+    else:
+        register_link = None
+    return render_template('auth/login.html', form=form, register_link=register_link)
 
 
 @app.route('/auth/logout')
@@ -50,26 +50,28 @@ def logout():
 @app.route('/auth/register', methods=['GET', 'POST'])
 def register():
     """注册"""
-    if current_app.config.get('REGISTER_ENABLE') is False:
+    if not current_app.config.get('AUTH_REGISTER_ENABLE'):
         abort(404)
 
     form = RegisterForm()
-
     if request.method == 'POST' and form.validate():
-        username = form.data['username']
-        password = form.data['password']
+        user = User()
 
-        user = User(username=username)
-        user.set_password(password)
+        form.populate_obj(user)
+        user.set_password(form.password.data)
+
         db.session.add(user)
         try:
             db.session.commit()
         except IntegrityError as e:
             current_app.logger.error(e)
             flash('用户注册发生错误')
+
         # 注册后自动登录
-        login_user(user)
+        if current_app.config.get('AUTH_REGISTER_AFTER_LOGIN'):
+            login_user(user)
         return redirect(url_for('index'))
+
     href = url_for('login')
-    link = f'<p>已有帐号？请点击<a href="{href}">登录</a>。</p>'
-    return render_template('auth/register.html', form=form, link=link)
+    login_link = f'<p>已有帐号？请点击<a href="{href}">登录</a>。</p>'
+    return render_template('auth/register.html', form=form, login_link=login_link)

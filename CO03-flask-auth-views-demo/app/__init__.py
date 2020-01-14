@@ -5,7 +5,8 @@ from .extensions import db, login_manager
 app = Flask(__name__)
 app.config['APP_NAME'] = 'Auth Demo'
 app.config['SECRET_KEY'] = '123456790'
-app.config['REGISTER_ENABLE'] = True
+app.config['AUTH_REGISTER_ENABLE'] = True
+app.config['AUTH_REGISTER_AFTER_LOGIN'] = True
 
 db.init_app(app)
 db.app = app

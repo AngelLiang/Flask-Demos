@@ -21,11 +21,8 @@
                 </div>
             </div>
             <div class="col-md-5 text-left" style="margin-right: 0; padding-right: 0;">
-                {% if link %}
-                    {{ link|safe }}
-                {% else %}
-                    {# <a href="{{ url_for('register') }}">没有帐号？请注册。</a> #}
-                    <a href="/auth/register">没有帐号？请注册。</a>
+                {% if register_link %}
+                    {{ register_link|safe }}
                 {% endif %}
             </div>
         </div>

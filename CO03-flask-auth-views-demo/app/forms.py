@@ -37,3 +37,7 @@ class RegisterForm(FlaskForm):
         if db.session.query(User).filter_by(
                 username=self.username.data).count() > 0:
             raise ValidationError('Duplicate username')
+
+    def validate_comfirm_password(self, field):
+        if self.password.data != self.comfirm_password.data:
+            raise ValidationError('两次密码不一致')
