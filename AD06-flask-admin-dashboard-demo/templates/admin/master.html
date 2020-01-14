@@ -1,6 +1,10 @@
 {% import 'admin/layout.html' as layout with context -%}
 {% extends 'admin/base.html' %}
 
+{% from "sb-admin/macros/topnav/messagesummary.html" import message_summary with context %}
+{% from "sb-admin/macros/topnav/tasksummary.html" import task_summary with context %}
+{% from "sb-admin/macros/topnav/alert.html" import alert with context %}
+
 {%- block head_css -%}
     {{ super() }}
 
@@ -29,8 +33,96 @@
 
 {%- endblock -%}
 
+{% block access_control %}
+    <ul class="nav navbar-top-links navbar-right">
 
-{% block tail_js %}
+        {# dropdown-messages #}
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-envelope fa-fw"></i>  <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-messages">
+                {% for m in admin_view.messages %}
+                    {{ message_summary(m.receivedon, m.from, m.text, m.url) }}
+                    <li class="divider"></li>
+                {% endfor %}
+                <li>
+                    <a class="text-center" href="#">
+                        <strong>Read All Messages</strong>
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                </li>
+            </ul>
+            <!-- /.dropdown-messages -->
+        </li>
+        <!-- /.dropdown -->
+
+        {# dropdown-tasks #}
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-tasks fa-fw"></i>  <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-tasks">
+                {% for t in admin_view.tasks %}
+                    <li>
+                        {{ task_summary(t.name, t.type, t.completed, t.url) }}
+                    </li>                   
+                    <li class="divider"></li>
+                {% endfor %}
+                <li>
+                    <a class="text-center" href="#">
+                        <strong>See All Tasks</strong>
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                </li>
+            </ul>
+            <!-- /.dropdown-tasks -->
+        </li>
+        <!-- /.dropdown -->
+
+        {# dropdown-alerts #}
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-bell fa-fw"></i>  <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-alerts">
+                {% for a in admin_view.alerts %}
+                    <li>
+                        {{ alert(a.title, a.type, a.time, a.url) }}
+                    </li>
+                    <li class="divider"></li>
+                {% endfor %}
+                <li>
+                    <a class="text-center" href="#">
+                        <strong>See All Alerts</strong>
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                </li>
+            </ul>
+            <!-- /.dropdown-alerts -->
+        </li>
+        <!-- /.dropdown -->
+
+        {# dropdown-user #}
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-user">
+                <li><a href="#"><i class="fa fa-user fa-fw"></i>User Profile</a></li>
+                <li><a href="#"><i class="fa fa-gear fa-fw"></i>Settings</a></li>
+                <li class="divider"></li>
+                <li><a href="#"><i class="fa fa-sign-out fa-fw"></i>Logout</a></li>
+            </ul>
+            <!-- /.dropdown-user -->
+        </li>
+        <!-- /.dropdown -->
+    </ul>
+    <!-- /.navbar-top-links -->
+{% endblock %}
+
+
+{%- block tail_js -%}
     {{ super() }}
 
     <!-- Metis Menu Plugin JavaScript -->
@@ -41,4 +133,4 @@
     <script src="{{ url_for('static', filename='sb-admin-2/js/sb-admin-2.js') }}"></script>
     <!-- <script src="/static/sb-admin-2/js/sb-admin-2.js"></script> -->
 
-{% endblock %}
+{%- endblock -%}

@@ -3,11 +3,17 @@ from flask_admin import Admin, AdminIndexView
 from flask_admin import expose
 from flask_admin.menu import MenuLink
 
+import stub
+
 
 class DashoboardView(AdminIndexView):
+
     @expose('/')
     def index(self):
         self.name = 'Dashboard'
+        self.messages = stub.get_messages_summary()
+        self.tasks = stub.get_tasks()
+        self.alerts = stub.get_alerts()
         return self.render('admin/dashboard.html')
 
 
@@ -22,7 +28,7 @@ admin.add_link(MenuLink(name='Flask-Demos',
 admin.add_link(MenuLink(
     name='Baidu', url='http://www.baidu.com/', category='Links'))
 # 以下 link 会向右靠齐
-admin.add_link(MenuLink(name='Logout', url='#'))
+# admin.add_link(MenuLink(name='Logout', url='#'))
 
 
 app = Flask(__name__)
