@@ -5,8 +5,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView as BaseModelView
 
 db = SQLAlchemy()
-admin = Admin(base_template='custom/admin/base.html',
-              template_mode='bootstrap3')
+admin = Admin(template_mode='bootstrap3')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '123456790'
@@ -25,17 +24,11 @@ class User(db.Model):
     username = db.Column(db.String(80))
     password = db.Column(db.String(128))
 
-    # # for object_ref
-    # can_edit = True
-    # can_view_details = False
-
 
 post_tags_table = db.Table(
-    'post_tags', db.Model.metadata,
-    db.Column('post_id', db.Integer,
-              db.ForeignKey('post.id')),
-    db.Column('tag_id', db.Integer,
-              db.ForeignKey('tag.id'))
+    'post_tags', db.metadata,
+    db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
 )
 
 
@@ -52,9 +45,6 @@ class Post(db.Model):
 
     def __str__(self):
         return "{}".format(self.title)
-
-    can_edit = True
-    can_view_details = True
 
 
 class Tag(db.Model):
@@ -153,23 +143,24 @@ def user_formatter(view, context, model, name):
 class ModelView(BaseModelView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        if self.model:
-            self.model.can_edit = self.can_edit
-            self.model.can_view_details = self.can_view_details
+        setattr(self.model, 'can_edit', self.can_edit)
+        setattr(self.model, 'can_view_details', self.can_view_details)
 
 
 class UserModelView(ModelView):
     column_list = ('id', 'name', 'username')
     column_default_sort = 'id'
 
+    can_view_details = True
     can_export = True
     export_max_rows = 1000
     export_types = ['csv', 'xls']
 
 
 class PostModelView(ModelView):
-    column_list = ('id', 'title', 'date', 'user')
+    column_list = ('title', 'date', 'user')
+    # 按 date 逆序排序
+    column_default_sort = ('date', True)
 
     form_ajax_refs = {
         'user': {
@@ -198,23 +189,39 @@ admin.add_view(UserModelView(User, db.session))
 admin.add_view(PostModelView(Post, db.session))
 
 
-def initdata(user_count=50, post_count=100):
+def initdata(user_count=50, post_count=100, tag_count=20):
     import random
+    from faker import Faker
+    fake = Faker('zh_CN')
+
     db.drop_all()
     db.create_all()
 
     users = []
     for i in range(user_count):
-        user = User(name=f'name{i+1}', username=f'user{i+1}')
+        user = User(name=fake.name(), username=fake.profile()['username'])
         users.append(user)
     db.session.add_all(users)
+    db.session.commit()
+
+    tags = []
+    for i in range(tag_count):
+        tag = Tag(name=fake.word())
+        tags.append(tag)
+    db.session.add_all(tags)
     db.session.commit()
 
     posts = []
     for i in range(post_count):
         post = Post(
-            title=f'title{i+1}',
-            user_id=random.randrange(1, User.query.count())
+            title=fake.sentence(),
+            tags=list(set([
+                Tag.query.get(random.randrange(1, Tag.query.count())),
+                Tag.query.get(random.randrange(1, Tag.query.count())),
+                Tag.query.get(random.randrange(1, Tag.query.count()))
+            ])),
+            user_id=random.randrange(1, User.query.count()),
+            date=fake.past_date()
         )
         posts.append(post)
     db.session.add_all(posts)
