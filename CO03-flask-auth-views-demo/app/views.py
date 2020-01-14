@@ -17,6 +17,26 @@ from .models import User
 from .forms import LoginForm, RegisterForm, FormFactory
 
 
+LOGIN_ERROR_KEY = 'login_error_count'
+
+
+def login_error_clear(key=LOGIN_ERROR_KEY):
+    if key in session:
+        del session[key]
+
+
+def login_error_increase(key=LOGIN_ERROR_KEY):
+    if key in session:
+        session[key] += 1
+    else:
+        session[key] = 1
+
+
+def is_login_error_exceed(key=LOGIN_ERROR_KEY):
+    return session.get(key, 0) >= \
+        current_app.config.get('AUTH_LOGIN_WITH_CODE_AFTER_X_ERRORS', 0)
+
+
 @app.route('/')
 @app.route('/index')
 @login_required
@@ -34,7 +54,8 @@ def login():
         return redirect(redirect_url)
 
     # form = LoginForm()
-    if current_app.config.get('AUTH_LOGIN_WITH_CODE'):
+    if current_app.config.get('AUTH_LOGIN_WITH_CODE') and is_login_error_exceed():
+        # if current_app.config.get('AUTH_LOGIN_WITH_CODE'):
         form = FormFactory(LoginForm, with_code=True)
         verify_code_url = url_for('get_code')
     else:
@@ -47,10 +68,20 @@ def login():
             user = form.get_user()
             # remember: https://flask-login.readthedocs.io/en/latest/#remember-me
             login_user(user, remember=form.remember_me.data)
+            login_error_clear()  # 清除登录失败次数
             return redirect(redirect_url)
         else:
             # 登录失败
-            pass
+            login_error_increase()  # 登入失败次数加一
+            if current_app.config.get('AUTH_LOGIN_WITH_CODE') and is_login_error_exceed():
+                new_form = FormFactory(LoginForm, with_code=True)
+                new_form.username.errors = form.username.errors
+                new_form.password.errors = form.password.errors
+                code = getattr(form, 'code', None)
+                if code:
+                    new_form.code.errors = form.code.errors
+                form = new_form
+                verify_code_url = url_for('get_code')
 
     if current_app.config.get('AUTH_REGISTER_ENABLE'):
         href = url_for('register')
