@@ -24,6 +24,7 @@
 | AD10 | flask-admin-with-auth-demo             | 给 flask-admin 添加登录注册功能                                  |
 | AD11 | flask-admin-with-sqlalchemy-demo       | flask-admin 使用原始的 SQLALchemy 进行数据查询                   |
 | AD12 | flask-admin-sqla-automap-demo          | flask-admin 使用 SQLALchemy 的 Automap 功能进行数据表的自动映射  |
+| AD13 | flask-admin-tag-formatter-demo         | 给 flask-admin 中的 tags 进行 formatter                          |
 
 ### Bootstrap 相关示例
 
