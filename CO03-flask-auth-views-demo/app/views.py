@@ -1,12 +1,20 @@
 from sqlalchemy.exc import IntegrityError
-from flask import render_template, request, redirect, url_for, flash, current_app, abort
+from flask import (
+    flash,
+    url_for,
+    request,
+    redirect,
+    current_app,
+    render_template,
+    abort,
+    session
+)
 from flask_login import current_user, login_user, logout_user, login_required
-from wtforms.validators import ValidationError
 
 from . import app
 from .extensions import db
 from .models import User
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, FormFactory
 
 
 @app.route('/')
@@ -22,21 +30,37 @@ def login():
     """登录"""
     redirect_url = request.args.get('next') or url_for('index')
     if current_user.is_authenticated:
+        # 已经登录了
         return redirect(redirect_url)
 
-    form = LoginForm()
-    if request.method == 'POST' and form.validate():
-        user = form.get_user()
-        # remember: https://flask-login.readthedocs.io/en/latest/#remember-me
-        login_user(user, remember=form.remember_me.data)
-        return redirect(redirect_url)
+    # form = LoginForm()
+    if current_app.config.get('AUTH_LOGIN_WITH_CODE'):
+        form = FormFactory(LoginForm, with_code=True)
+        verify_code_url = url_for('get_code')
+    else:
+        form = FormFactory(LoginForm, with_code=False)
+        verify_code_url = None
+
+    if request.method == 'POST':
+        if form.validate():
+            # 登录成功
+            user = form.get_user()
+            # remember: https://flask-login.readthedocs.io/en/latest/#remember-me
+            login_user(user, remember=form.remember_me.data)
+            return redirect(redirect_url)
+        else:
+            # 登录失败
+            pass
 
     if current_app.config.get('AUTH_REGISTER_ENABLE'):
         href = url_for('register')
-        register_link = f'<p>新用户吗？<a href="{href}">请注册</a>。</p>'
+        register_link = f'<p>新用户吗？请<a href="{href}">注册</a>。</p>'
     else:
         register_link = None
-    return render_template('auth/login.html', form=form, register_link=register_link)
+    return render_template('auth/login.html',
+                           form=form,
+                           register_link=register_link,
+                           verify_code_url=verify_code_url)
 
 
 @app.route('/auth/logout')
@@ -51,10 +75,19 @@ def logout():
 def register():
     """注册"""
     if not current_app.config.get('AUTH_REGISTER_ENABLE'):
+        # 没有启用注册功能
         abort(404)
 
-    form = RegisterForm()
+    # form = RegisterForm()
+    if current_app.config.get('AUTH_REGISTER_WITH_CODE'):
+        form = FormFactory(RegisterForm, with_code=True)
+        verify_code_url = url_for('get_code')
+    else:
+        form = FormFactory(RegisterForm, with_code=False)
+        verify_code_url = None
+
     if request.method == 'POST' and form.validate():
+        # 表单校验成功
         user = User()
 
         form.populate_obj(user)
@@ -67,11 +100,21 @@ def register():
             current_app.logger.error(e)
             flash('用户注册发生错误')
 
-        # 注册后自动登录
         if current_app.config.get('AUTH_REGISTER_AFTER_LOGIN'):
+            # 注册成功后自动登录
             login_user(user)
         return redirect(url_for('index'))
 
     href = url_for('login')
     login_link = f'<p>已有帐号？请点击<a href="{href}">登录</a>。</p>'
-    return render_template('auth/register.html', form=form, login_link=login_link)
+    verify_code_url = url_for('get_code')
+    return render_template('auth/register.html',
+                           form=form,
+                           login_link=login_link,
+                           verify_code_url=verify_code_url)
+
+
+@app.route('/auth/code')
+def get_code():
+    from app.verify_code import generate_flask_response
+    return generate_flask_response()

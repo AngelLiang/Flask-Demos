@@ -2,7 +2,7 @@
 
 ## 准备工作
 
-首先需要编译sb-admin-2前端工具
+首先需要编译sb-admin-2前端代码
 
 安装npm和bower：
 
@@ -21,6 +21,13 @@ $ bower install
 
 ```
 $ pipenv install
-$ pipenv shell
-$ flask run
+$ pipenv run flask run
 ```
+
+## 主要功能
+
+- [X] 用户登录
+- [X] 用户注册
+- [X] 登录时要填验证码
+- [X] 注册时要填验证码
+- [ ] 用户登录错误 X 次后需要填验证码

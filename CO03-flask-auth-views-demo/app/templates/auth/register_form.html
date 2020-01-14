@@ -1,7 +1,6 @@
 {% import "auth/macros.html" as auth %}
 
 <form role="form" action="" method="post" class="form-horizontal">
-    {% set show_label = config.get('LOGIN_FORM_LABEL_SHOW') == true %}
     {{ form.hidden_tag() if form.hidden_tag }}
     <fieldset>
         {# 用户名 #}
@@ -12,8 +11,8 @@
         {{ auth.render_field(form, form.comfirm_password) }}
 
         {# 验证码 #}
-        {% if config.get('LOGIN_FORM_VERIFY_CODE_ENABLE') == true %}
-            {{ auth.verify_code(form, show_label) }}
+        {% if verify_code_url %}
+            {{ auth.render_verify_code(form, verify_code_url) }}
         {% endif %}
 
         <div class="form-group">

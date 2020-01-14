@@ -5,7 +5,15 @@ from .extensions import db, login_manager
 app = Flask(__name__)
 app.config['APP_NAME'] = 'Auth Demo'
 app.config['SECRET_KEY'] = '123456790'
+# 登录时是否启用验证码
+app.config['AUTH_LOGIN_WITH_CODE'] = True
+# 登录错误 X 次后需要验证码
+app.config['AUTH_LOGIN_WITH_CODE_AFTER_X_ERRORS'] = 1
+# 是否启用注册功能
 app.config['AUTH_REGISTER_ENABLE'] = True
+# 注册时是否启用验证码
+app.config['AUTH_REGISTER_WITH_CODE'] = True
+# 成功注册后是否自动登录
 app.config['AUTH_REGISTER_AFTER_LOGIN'] = True
 
 db.init_app(app)
