@@ -1,18 +1,18 @@
 {% extends "auth/base.html" %}
 
-{% block title %} {{ config.get("APP_NAME", "TITLE") }} - 登录{% endblock %}
+{% block title %} {{ config.get("APP_NAME", "app") }} - 登录{% endblock %}
 
 {%- block page_body -%}
     <div class="container">
     
-        {% import "_macros.html" as macros %}
-        {{ macros.messages() }}
+        {# {% import "_macros.html" as macros %} #}
+        {# {{ macros.messages() }} #}
 
         <div class="row">
             <div class="col-lg-offset-4 col-lg-4 col-md-6 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-12">
                 <div class="login-panel panel panel-default">
                     <div class="panel-heading">
-                        <h3 class="panel-title">{{ config.get("APP_NAME", "TITLE") }} - 登录</h3>
+                        <h3 class="panel-title">{{ config.get("APP_NAME", "app") }} - 登录</h3>
                     </div>
                     <div class="panel-body">
 

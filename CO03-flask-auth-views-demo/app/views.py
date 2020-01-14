@@ -35,7 +35,8 @@ def login():
             login_user(user, remember=remember_me)
             return redirect(redirect_url)
         flash('用户名或密码错误', 'error')
-    return render_template('auth/login.html', form=form)
+    link = '<p>新用户吗？<a href="' + url_for('register') + '">请注册</a>。</p>'
+    return render_template('auth/login.html', form=form, link=link)
 
 
 @app.route('/auth/logout')
@@ -69,5 +70,6 @@ def register():
         # 注册后自动登录
         login_user(user)
         return redirect(url_for('index'))
-
-    return render_template('auth/register.html', form=form)
+    href = url_for('login')
+    link = f'<p>已有帐号？请点击<a href="{href}">登录</a>。</p>'
+    return render_template('auth/register.html', form=form, link=link)

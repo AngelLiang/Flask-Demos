@@ -1,23 +1,39 @@
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, PasswordField, BooleanField
+from wtforms.validators import DataRequired, Length, ValidationError
+
+from .extensions import db
+from .models import User
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Usrename', validators=[
-                           DataRequired(), Length(1, 80)])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember_me = BooleanField('Remember Me')
+    username = StringField('用户名', validators=[DataRequired(), Length(1, 80)])
+    password = PasswordField('密码', validators=[DataRequired()])
+    remember_me = BooleanField('记住我')
 
-    submit = SubmitField('Submit')
+    def validate_username(self, field):
+        user = self.get_user()
+        if user is None:
+            raise ValidationError('Invalid user')
+
+    def validate_password(self, field):
+        user = self.get_user()
+        if user and not user.validate_password(self.password.data):
+            raise ValidationError('Invalid password')
+
+    def get_user(self):
+        self._user = db.session.query(User).filter_by(
+            username=self.username.data).first()
+        return self._user
 
 
 class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[
-                           DataRequired(), Length(1, 80)])
-    password = PasswordField('Password', validators=[DataRequired()])
-    comfirm_password = PasswordField(
-        'Comfirm Password', validators=[DataRequired()])
+    username = StringField('用户名', validators=[DataRequired(), Length(1, 80)])
+    password = PasswordField('密码', validators=[DataRequired()])
+    comfirm_password = PasswordField('确认密码', validators=[DataRequired()])
 
-    submit = SubmitField('Register')
+    def validate_username(self, field):
+        if db.session.query(User).filter_by(
+                username=self.username.data).count() > 0:
+            raise ValidationError('Duplicate username')

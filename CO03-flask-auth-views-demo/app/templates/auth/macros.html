@@ -69,8 +69,6 @@
 
 {% macro verify_code(form, show_label=true) %}
     <div class="form-group {{ 'has-error' if form.code.errors else '' }}">
-        {# {{ render_label(form.code) }}
-        {{ _render_field(form.code, kwargs) }} #}
         {% if show_label %}
             <label for="{{ form.code.id }}" class="col-md-3 control-label">{{ form.code.label.text }}</label>
         {% endif %}
