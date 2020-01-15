@@ -60,13 +60,15 @@ class UserModelView(ModelView):
     column_list = ('id', 'name', 'username')
     column_default_sort = 'id'
 
+    can_delete = False
     can_export = True
     export_max_rows = 1000
     export_types = ['csv', 'xls']
 
 
 class PostModelView(ModelView):
-    column_list = ('id', 'title', 'date', 'user')
+    column_list = ('title', 'date', 'user')
+    column_default_sort = ('date', True)
 
     form_ajax_refs = {
         'user': {
@@ -124,12 +126,16 @@ admin.add_links(MenuLink(name='Logout', url='/'))
 
 def initdata(user_count=50, post_count=100):
     import random
+    from faker import Faker
+    fake = Faker('zh_CN')
+
     db.drop_all()
     db.create_all()
 
     users = []
     for i in range(user_count):
-        user = User(name=f'name{i+1}', username=f'user{i+1}')
+        profile = fake.profile()
+        user = User(name=profile['name'], username=profile['username'])
         users.append(user)
     db.session.add_all(users)
     db.session.commit()
@@ -137,8 +143,9 @@ def initdata(user_count=50, post_count=100):
     posts = []
     for i in range(post_count):
         post = Post(
-            title=f'title{i+1}',
-            user_id=random.randrange(1, User.query.count())
+            title=fake.sentence(),
+            user_id=random.randrange(1, User.query.count()),
+            date=fake.past_date()
         )
         posts.append(post)
     db.session.add_all(posts)
@@ -147,7 +154,7 @@ def initdata(user_count=50, post_count=100):
 
 @app.route('/')
 def index():
-    return '<a href="/admin/">Click me to get to Admin!</a>'
+    return '<a href="/admin/">Click me to go to Admin!</a>'
 
 
 @app.before_first_request

@@ -10,6 +10,7 @@ flask = "*"
 flask-admin = "*"
 python-dotenv = "*"
 flask-sqlalchemy = "*"
+faker = "*"
 
 [requires]
 python_version = "3.6"
