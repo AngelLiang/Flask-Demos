@@ -147,5 +147,10 @@ def quarters():
     return render_template('data_from_template.html', data=data)
 
 
+@app.route('/updating')
+def updating():
+    return render_template('updating.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True)
