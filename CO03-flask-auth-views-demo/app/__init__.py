@@ -14,7 +14,7 @@ app.config['AUTH_REGISTER_ENABLE'] = True
 # 注册时是否启用验证码
 app.config['AUTH_REGISTER_WITH_CODE'] = True
 # 成功注册后是否自动登录
-app.config['AUTH_REGISTER_AFTER_LOGIN'] = True
+app.config['AUTH_LOGIN_AFTER_REGISTER'] = True
 
 db.init_app(app)
 db.app = app

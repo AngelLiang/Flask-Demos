@@ -3,8 +3,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Length, ValidationError
 
-from .extensions import db
-from .models import User
+from app.extensions import db
+from app.models import User
 
 
 class CodeMixin(object):

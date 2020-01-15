@@ -11,10 +11,10 @@ from flask import (
 )
 from flask_login import current_user, login_user, logout_user, login_required
 
+from app.extensions import db
+from app.models import User
+from app.forms import LoginForm, RegisterForm, FormFactory
 from . import app
-from .extensions import db
-from .models import User
-from .forms import LoginForm, RegisterForm, FormFactory
 
 
 LOGIN_ERROR_KEY = 'login_error_count'
@@ -57,7 +57,7 @@ def login():
     if current_app.config.get('AUTH_LOGIN_WITH_CODE') and is_login_error_exceed():
         # if current_app.config.get('AUTH_LOGIN_WITH_CODE'):
         form = FormFactory(LoginForm, with_code=True)
-        verify_code_url = url_for('get_code')
+        verify_code_url = url_for('.get_code')
     else:
         form = FormFactory(LoginForm, with_code=False)
         verify_code_url = None
@@ -81,10 +81,10 @@ def login():
                 if code:
                     new_form.code.errors = form.code.errors
                 form = new_form
-                verify_code_url = url_for('get_code')
+                verify_code_url = url_for('.get_code')
 
     if current_app.config.get('AUTH_REGISTER_ENABLE'):
-        href = url_for('register')
+        href = url_for('.register')
         register_link = f'<p>新用户吗？请<a href="{href}">注册</a>。</p>'
     else:
         register_link = None
@@ -99,7 +99,7 @@ def login():
 def logout():
     logout_user()
     flash('登出成功', 'success')
-    return redirect(url_for('login'))
+    return redirect(url_for('.login'))
 
 
 @app.route('/auth/register', methods=['GET', 'POST'])
@@ -112,7 +112,7 @@ def register():
     # form = RegisterForm()
     if current_app.config.get('AUTH_REGISTER_WITH_CODE'):
         form = FormFactory(RegisterForm, with_code=True)
-        verify_code_url = url_for('get_code')
+        verify_code_url = url_for('.get_code')
     else:
         form = FormFactory(RegisterForm, with_code=False)
         verify_code_url = None
@@ -131,14 +131,15 @@ def register():
             current_app.logger.error(e)
             flash('用户注册发生错误')
 
-        if current_app.config.get('AUTH_REGISTER_AFTER_LOGIN'):
+        if current_app.config.get('AUTH_LOGIN_AFTER_REGISTER'):
             # 注册成功后自动登录
             login_user(user)
+        flash('注册成功', 'success')
         return redirect(url_for('index'))
 
-    href = url_for('login')
+    href = url_for('.login')
     login_link = f'<p>已有帐号？请点击<a href="{href}">登录</a>。</p>'
-    verify_code_url = url_for('get_code')
+    verify_code_url = url_for('.get_code')
     return render_template('auth/register.html',
                            form=form,
                            login_link=login_link,
