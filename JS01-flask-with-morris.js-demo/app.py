@@ -147,9 +147,41 @@ def quarters():
     return render_template('data_from_template.html', data=data)
 
 
+@app.route('/non-continuous')
+@app.route('/non_continuous')
+def non_continuous():
+    data = [
+        {"period": "2012-10-01", "licensed": 3407},
+        {"period": "2012-09-30", "sorned": 0},
+        {"period": "2012-09-29", "sorned": 618},
+        {"period": "2012-09-20", "licensed": 3246, "sorned": 661},
+        {"period": "2012-09-19", "licensed": 3257, "sorned": None},
+        {"period": "2012-09-18", "licensed": 3248, "other": 1000},
+        {"period": "2012-09-17", "sorned": 0},
+        {"period": "2012-09-16", "sorned": 0},
+        {"period": "2012-09-15", "licensed": 3201, "sorned": 656},
+        {"period": "2012-09-10", "licensed": 3215}
+    ]
+    return render_template('non-continuous.html', data=data)
+
+
 @app.route('/updating')
 def updating():
     return render_template('updating.html')
+
+
+@app.route('/updating_by_ajax/data')
+def updating_by_ajax_data():
+    import datetime as dt
+    import random
+    period = dt.datetime.strftime(dt.datetime.now(), '%H:%M:%S')
+    data = random.randint(1, 100)
+    return {'period': period, 'data': data}
+
+
+@app.route('/updating_by_ajax')
+def updating_by_ajax():
+    return render_template('updating_by_ajax.html')
 
 
 if __name__ == "__main__":

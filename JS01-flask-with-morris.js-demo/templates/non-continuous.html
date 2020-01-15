@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div id="graph" style="height: 250px;"></div>
+{% endblock %}
+
+{% block tail %}
+    <script>
+        var data = {{ data|tojson|safe }}
+        Morris.Line({
+            element: 'graph',
+            data: data,
+            xkey: 'period',
+            ykeys: ['licensed', 'sorned', 'other'],
+            labels: ['Licensed', 'SORN', 'Other'],
+            /* custom label formatting with `xLabelFormat` */
+            xLabelFormat: function(d) { return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear(); },
+            /* setting `xLabels` is recommended when using xLabelFormat */
+            xLabels: 'day'
+        });
+    </script>
+{% endblock %}
