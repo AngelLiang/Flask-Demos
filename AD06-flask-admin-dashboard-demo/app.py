@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_admin import Admin, AdminIndexView
+from flask_admin import Admin, AdminIndexView, BaseView
 from flask_admin import expose
 from flask_admin.menu import MenuLink
 
@@ -17,8 +17,19 @@ class DashoboardView(AdminIndexView):
         return self.render('admin/dashboard.html')
 
 
+class FlotChartsView(BaseView):
+    @expose('/')
+    def index(self):
+        self.name = 'FlotCharts'
+        return self.render('admin/flot_charts.html')
+
+
 admin = Admin(template_mode='bootstrap3', index_view=DashoboardView(
     menu_icon_type='glyph', menu_icon_value='glyphicon-dashboard'))
+
+admin.add_view(FlotChartsView(
+    name='Flot Charts', category='Charts',
+    menu_icon_type='fa', menu_icon_value='fa-bar-chart-o'))
 
 # 以下 link 会向左靠齐
 admin.add_link(MenuLink(name='Back Home', url='/admin', category='Links'))
