@@ -1,5 +1,3 @@
-import os
-import subprocess
 from flask import Flask
 from .extensions import db, login_manager
 
@@ -34,7 +32,11 @@ init_jinja2_functions(app)
 @app.cli.command()
 def build():
     """Build sb-admin-2 frontend"""
-    os.chdir('app/static/sb-admin-2')
+    import os
+    import subprocess
+
+    path = os.path.join(app.root_path, 'static', 'sb-admin-2')
+    os.chdir(path)
     subprocess.call(['bower', 'install'], shell=True)
 
 
