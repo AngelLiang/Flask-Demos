@@ -6,9 +6,20 @@ from wtforms.validators import DataRequired, Length, ValidationError
 from app.extensions import db
 from app.models import User
 
+USERNAME_MIN_LENGTH = 1
+USERNAME_MAX_LANGTH = 80
+PASSWORD_MAX_LANGHT = 20
+
 
 class CodeMixin(object):
-    code = StringField('验证码', validators=[DataRequired()])
+    code = StringField(
+        '验证码',
+        validators=[DataRequired()],
+        render_kw={
+            'maxlength': '4',
+            # 只能输入数字和字母
+            'onKeyUp': r"value=value.replace(/[\W]/g,'')"
+        })
 
     def validate_code(self, field):
         session_code = session.get('code')
@@ -17,8 +28,19 @@ class CodeMixin(object):
 
 
 class LoginForm(CodeMixin, FlaskForm):
-    username = StringField('用户名', validators=[DataRequired(), Length(1, 80)])
-    password = PasswordField('密码', validators=[DataRequired()])
+    username = StringField(
+        '用户名',
+        validators=[DataRequired(), Length(
+            USERNAME_MIN_LENGTH, USERNAME_MAX_LANGTH)],
+        render_kw={
+            'maxlength': f'{USERNAME_MAX_LANGTH}',
+        })
+    password = PasswordField(
+        '密码',
+        validators=[DataRequired()],
+        render_kw={
+            'maxlength': f'{PASSWORD_MAX_LANGHT}',
+        })
     remember_me = BooleanField('记住我')
 
     def validate_username(self, field):
@@ -40,9 +62,25 @@ class LoginForm(CodeMixin, FlaskForm):
 
 
 class RegisterForm(CodeMixin, FlaskForm):
-    username = StringField('用户名', validators=[DataRequired(), Length(1, 80)])
-    password = PasswordField('密码', validators=[DataRequired()])
-    comfirm_password = PasswordField('确认密码', validators=[DataRequired()])
+    username = StringField(
+        '用户名',
+        validators=[DataRequired(), Length(
+            USERNAME_MIN_LENGTH, USERNAME_MAX_LANGTH)],
+        render_kw={
+            'maxlength': f'{USERNAME_MAX_LANGTH}',
+        })
+    password = PasswordField(
+        '密码',
+        validators=[DataRequired()],
+        render_kw={
+            'maxlength': f'{PASSWORD_MAX_LANGHT}',
+        })
+    comfirm_password = PasswordField(
+        '确认密码',
+        validators=[DataRequired()],
+        render_kw={
+            'maxlength': f'{PASSWORD_MAX_LANGHT}',
+        })
 
     def validate_username(self, field):
         if db.session.query(User).filter_by(
