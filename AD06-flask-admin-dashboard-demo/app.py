@@ -44,6 +44,19 @@ admin.add_link(MenuLink(
 
 app = Flask(__name__)
 app.config['FLASK_ADMIN_FLUID_LAYOUT'] = True
+
+
+@app.cli.command()
+def build():
+    """Build sb-admin-2 frontend"""
+    import os
+    import subprocess
+
+    path = os.path.join(app.root_path, 'static', 'sb-admin-2')
+    os.chdir(path)
+    subprocess.call(['bower', 'install'], shell=True)
+
+
 admin.init_app(app)
 
 
