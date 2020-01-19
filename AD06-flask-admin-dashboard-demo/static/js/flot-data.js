@@ -1103,15 +1103,16 @@ $(function() {
 
 $(function() {
 
+    // 容器
     var container = $("#flot-line-chart-moving");
 
     // Determine how many data points to keep based on the placeholder's initial size;
     // this gives us a nice high-res plot while avoiding more than one point per pixel.
 
+    // 最大值
     var maximum = container.outerWidth() / 2 || 300;
 
-    //
-
+    // 数据
     var data = [];
 
     // 获取随机数据
