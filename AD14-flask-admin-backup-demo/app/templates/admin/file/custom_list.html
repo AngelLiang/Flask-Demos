@@ -1,0 +1,11 @@
+{% extends "admin/file/list.html" %}
+{% import 'admin/model/row_actions.html' as row_actions with context %}
+
+{% block list_row_actions scoped %}
+    {{ super() }}
+    {% if admin_view.can_restore %}
+        <a class="icon" href="{{ get_url('.restore', path=path) }}" title="{{ _gettext('Restore') }}">
+            <i class="fa fa-export glyphicon glyphicon-export"></i>
+        </a>
+    {% endif %}
+{% endblock %}
