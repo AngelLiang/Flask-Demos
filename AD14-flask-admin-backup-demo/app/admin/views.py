@@ -15,5 +15,7 @@ class UserModelView(AdminBackupModelViewMixin,
     export_max_rows = 1000
     export_types = ['csv', 'xls']
 
+    can_set_page_size = True
+
 
 admin.add_view(UserModelView(User, db.session))
