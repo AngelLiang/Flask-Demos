@@ -29,17 +29,33 @@ def get_past_Monday(past=1):
     return today - datetime.timedelta(days=days)
 
 
-def get_post_week_stats(past=1):
+def get_stats_by_week(datetime_column, past=1, autofill=True):
+    """
+    :param datetime_column: ORM Column
+    :param past: int, 过去的周数
+    :param autofill: bool, 是否自动填充未来的数据
+    """
     the_Monday = get_past_Monday(past)
     stats = db.session.query(
-        Post.create_at, func.count(Post.id)
+        datetime_column, func.count('*')
     ).filter(
-        the_Monday <= Post.create_at,
-        Post.create_at < the_Monday+datetime.timedelta(days=7)
+        # 筛选大于等于某星期一，小于下星期一
+        the_Monday <= datetime_column,
+        datetime_column < the_Monday+datetime.timedelta(days=7)
     ).group_by(
-        extract('day', Post.create_at)
+        extract('day', datetime_column)
     ).all()
+
+    # 如果达不到七天，应该填充剩下的数据
+    if autofill:
+        while len(stats) < 7:
+            stats.append((stats[-1][0]+datetime.timedelta(days=1), 0))
+
     return stats
+
+
+def get_post_week_stats(past=1, *args, **kwargs):
+    return get_stats_by_week(Post.create_at, past, *args, **kwargs)
 
 
 def stats2data(stats):
@@ -55,7 +71,6 @@ def index():
     past = request.args.get('past', type=int, default=1)
 
     stats = get_post_week_stats(past)
-    # print(stats)
 
     data = stats2data(stats)
     print(data)
