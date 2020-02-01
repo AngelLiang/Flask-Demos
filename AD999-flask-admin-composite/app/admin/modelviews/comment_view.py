@@ -1,6 +1,8 @@
-from flask_admin.contrib.sqla import ModelView
 from app.extensions import db, admin
 from app.models import User, Post, Comment
+
+from .base import ModelView
+from app.admin.formatters import user_formatter
 
 
 class CommentModelView(ModelView):
@@ -15,6 +17,22 @@ class CommentModelView(ModelView):
             'fields': (Post.title,)
         }
     }
+
+    column_formatters = {
+        'user': user_formatter,
+    }
+
+    # for object_ref
+    line_fields = [
+        {
+            'label': 'name',
+            'field': 'name'
+        },
+        {
+            'label': 'username',
+            'field': 'username'
+        }
+    ]
 
 
 admin.add_view(CommentModelView(Comment, db.session, name='评论'))

@@ -13,7 +13,9 @@ login_manager.login_message_category = 'warning'
 
 
 from app.admin.admin_index import AdminIndexView  # noqa
-admin = Admin(template_mode='bootstrap3', index_view=AdminIndexView())
+admin = Admin(template_mode='bootstrap3', index_view=AdminIndexView(
+    menu_icon_type='glyph', menu_icon_value='glyphicon-home'
+))
 
 babel = Babel()
 
@@ -26,6 +28,7 @@ def get_locale():
         session['lang'] = override
 
     return session.get('lang', 'zh_CN')
+
 
 def register_extensions(app):
     db.init_app(app)

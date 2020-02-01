@@ -1,6 +1,7 @@
-from flask_admin.contrib.sqla import ModelView
 from app.extensions import db, admin
 from app.models import Post, Tag
+
+from .base import ModelView
 
 
 class TagModelView(ModelView):
