@@ -19,13 +19,13 @@ class Post(db.Model):
     create_at = db.Column(db.DateTime)
 
     def __str__(self):
-        return "{}".format(self.title)
+        return f'{self.title}'
 
 
-def get_past_Monday(num=1):
-    """获取过去 num 的星期一的日期"""
+def get_past_Monday(past=1):
+    """获取过去 past 的星期一的日期"""
     today = datetime.date.today()
-    days = today.weekday() + num * 7
+    days = today.weekday() + past * 7
     return today - datetime.timedelta(days=days)
 
 
@@ -43,9 +43,10 @@ def get_post_week_stats(past=1):
 
 
 def stats2data(stats):
-    data = []
-    for stat in stats:
-        data.append({'period': stat[0].strftime('%Y-%m-%d'), 'count': stat[1]})
+    data = [
+        {'period': stat[0].strftime('%Y-%m-%d'), 'count': stat[1]}
+        for stat in stats
+    ]
     return data
 
 
@@ -54,7 +55,7 @@ def index():
     past = request.args.get('past', type=int, default=1)
 
     stats = get_post_week_stats(past)
-    print(stats)
+    # print(stats)
 
     data = stats2data(stats)
     print(data)
