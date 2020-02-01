@@ -2,7 +2,7 @@ import random
 from faker import Faker
 
 from app.extensions import db
-from app.models import User, Post, Tag
+from app.models import User, Post, Tag, Comment
 
 fake = Faker('zh_CN')
 
@@ -14,7 +14,7 @@ def fake_admin(username='admin', password='admin'):
     db.session.commit()
 
 
-def initdata(user_count=50, post_count=100, tag_count=20):
+def initdata(user_count=50, post_count=100, tag_count=20, comment_count=300):
 
     users = []
     for i in range(user_count):
@@ -49,4 +49,17 @@ def initdata(user_count=50, post_count=100, tag_count=20):
         )
         posts.append(post)
     db.session.add_all(posts)
+    db.session.commit()
+
+    comments = []
+    for i in range(comment_count):
+        comment = Comment(
+            content=fake.sentence(),
+            user_id=random.randrange(1, User.query.count()),
+            post_id=random.randrange(1, Post.query.count()),
+            created_at=fake.date_time_between(
+                start_date='-14d', end_date='-2d')
+        )
+        comments.append(comment)
+    db.session.add_all(comments)
     db.session.commit()

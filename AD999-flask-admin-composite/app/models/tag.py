@@ -2,8 +2,11 @@ from app.extensions import db
 
 
 class Tag(db.Model):
+    """标签"""
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode(64))
+    name = db.Column(db.String(64))
+
+    created_at = db.Column(db.DateTime)
 
     def __str__(self):
-        return "{}".format(self.name)
+        return f'{self.name}'

@@ -26,3 +26,11 @@ def get_locale():
         session['lang'] = override
 
     return session.get('lang', 'zh_CN')
+
+def register_extensions(app):
+    db.init_app(app)
+    db.app = app
+    babel.init_app(app)
+    admin.init_app(app)
+    admin.name = app.config['APP_NAME']
+    login_manager.init_app(app)

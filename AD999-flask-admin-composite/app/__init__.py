@@ -8,12 +8,8 @@ app.config['SECRET_KEY'] = '123456790'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db.init_app(app)
-db.app = app
-babel.init_app(app)
-admin.init_app(app)
-admin.name = app.config['APP_NAME']
-login_manager.init_app(app)
+from app.extensions import register_extensions
+register_extensions(app)
 
 
 def init_jinja2_functions(app):
@@ -26,29 +22,10 @@ init_jinja2_functions(app)
 from app.admin.modelviews import *
 
 
+from app.commands import register_commands
+register_commands(app)
+
+
 @app.route('/')
 def index():
     return '<a href="/admin/">Click me to go to Admin!</a>'
-
-
-@app.cli.command()
-def build():
-    """Build sb-admin-2 frontend"""
-    import os
-    import subprocess
-
-    path = os.path.join(app.root_path, 'static', 'sb-admin-2')
-    os.chdir(path)
-    subprocess.call(['bower', 'install'], shell=True)
-
-
-@app.cli.command()
-def initdb():
-    """Initialize database"""
-    from app.fake import fake_admin, initdata
-
-    db.drop_all()
-    db.create_all()
-
-    fake_admin()
-    initdata()

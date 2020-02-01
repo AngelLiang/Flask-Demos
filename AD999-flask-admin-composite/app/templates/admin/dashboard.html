@@ -8,24 +8,57 @@
 {% from "sb-admin/macros/dashboard/donut.html" import donut %}
 {% from "sb-admin/macros/dashboard/chat.html" import chat %}
 
+{% block head %}
+	<link rel="stylesheet" src="{{ url_for('static', filename='css/morris.css') }}">
+{% endblock %}
+
 {% block body %}
 <div class="row">
 	<div class="col-lg-3 col-md-6">
-		{{ count_icon(26, "New Comments!", "comments", "primary", "#") }}
+		{{ count_icon(comment_total, "New Comments!", "comments", "primary", url_for('comment.index_view')) }}
 	</div>
 	<div class="col-lg-3 col-md-6">
-		{{ count_icon(12, "New Tasks!", "tasks", "green", "#") }}
+		{{ count_icon(post_total, "New Posts!", "edit", "green", url_for('post.index_view')) }}
 	</div>
 	<div class="col-lg-3 col-md-6">
-		{{ count_icon(124, "New Orders!", "shopping-cart", "yellow", "#") }}
+		{{ count_icon(user_total, "New Users!", "users", "yellow", url_for('user.index_view')) }}
 	</div>
 	<div class="col-lg-3 col-md-6">
-		{{ count_icon(13, "Support Tickets!", "support", "red", "#") }}
+		{{ count_icon(tag_total, "Post Tags!", "support", "red", url_for('tag.index_view')) }}
 	</div>
 </div>
 
 <div class="row">
-    <div class="col-lg-8">
+	<div class="col-lg-12 col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<i class="fa fa-bar-chart-o fa-fw"></i>{{ stats_title }}
+
+				<div class="pull-right">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+							Actions
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu pull-right" role="menu">
+							<li><a href="{{ url_for('admin.index', past=0) }}">本周文章发表数量</a></li>
+							<li><a href="{{ url_for('admin.index', past=1) }}">上周文章发表数量</a></li>
+						</ul>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- /.panel-heading -->
+
+			<div class="panel-body">
+				<div id="line"></div>
+			</div>
+			<!-- /.panel-body -->
+		</div>
+	</div>
+
+    {# <div class="col-lg-8">
         {{ area_chart("Area Chart Example") }}
         {{ bar_chart("Bar Chart Example") }}
         {{ timeline("Responsive Timeline") }}
@@ -34,7 +67,7 @@
         {{ notification("Notifications Panel") }}
         {{ donut("Donut Chart Example") }}
         {{ chat("Chat") }}
-    </div>
+    </div> #}
 </div>
 	
 {% endblock %}
@@ -46,5 +79,18 @@
     <!-- Morris Charts JavaScript -->
     <script src="{{ url_for('static', filename='sb-admin-2/bower_components/raphael/raphael.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='sb-admin-2/bower_components/morrisjs/morris.min.js') }}"></script>
-	<script src="{{ url_for('static', filename='js/morris-data.js') }}"></script>
+
+	<script>
+		var data = {{ post_stats|tojson|safe }}
+		Morris.Line({
+			element: 'line',
+			data: data,
+			xkey: 'period',
+			ykeys: ['count'],
+			labels: ['Count'],
+			xLabels: "day",
+			resize: true,
+		});
+	</script>
+
 {% endblock %}
