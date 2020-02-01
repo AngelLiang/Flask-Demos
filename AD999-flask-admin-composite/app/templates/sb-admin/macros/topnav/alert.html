@@ -1,8 +1,8 @@
 {% macro alert(title, type, time, url) %}
-<a href="{{url}}">
+<a href="{{ url }}">
 	<div>
-		<i class="fa fa-{{type}} fa-fw"></i> {{title}}
-		<span class="pull-right text-muted small">{{time}} minutes ago</span>
+		<i class="fa fa-{{ type }} fa-fw"></i> {{ title }}
+		<span class="pull-right text-muted small">{{ time }}</span>
 	</div>
 </a>
 {% endmacro %}

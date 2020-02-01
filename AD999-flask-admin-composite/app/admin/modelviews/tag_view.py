@@ -9,4 +9,5 @@ class TagModelView(ModelView):
     column_default_sort = 'name'
 
 
+
 admin.add_view(TagModelView(Tag, db.session, name='标签'))

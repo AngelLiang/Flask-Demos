@@ -11,6 +11,8 @@ class PostModelView(ModelView):
     column_default_sort = ('created_at', True)
     column_searchable_list = ('title',)
 
+    column_filters = ('tags.name',)
+
     # form
     form_ajax_refs = {
         'user': {
