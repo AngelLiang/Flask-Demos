@@ -1,9 +1,10 @@
 import os
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
-from .local_tools import LocalTools
 from .backup import Backup
 from .serializer import Serializer
+from .autoclean import BackupAutoClean
+
 from .mixins import AdminBackupModelViewMixin
 from .fileadmin import BackupFileAdmin
 
@@ -97,4 +98,14 @@ class FlaskAdminBackup:
         * Keeps the most recent backup from each month of the last year
         * Keeps the most recent backup from each year of the remaining years
         """
-        pass
+        backup = self.backup
+        backup.files = tuple(backup.target.get_files())
+        if not backup.files:
+            print('==> No backups found.')
+            return None
+        cleaning = BackupAutoClean(backup.get_timestamps())
+        white_list = cleaning.white_list
+        black_list = cleaning.black_list
+        if not black_list:
+            print('==> No backup to be deleted.')
+            return None
