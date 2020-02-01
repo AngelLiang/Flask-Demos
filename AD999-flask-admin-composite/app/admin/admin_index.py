@@ -5,11 +5,15 @@ from flask_admin import helpers
 from flask_login import current_user, login_user, logout_user
 
 from app.models import User, Post, Tag, Comment
-from app.utils.stats_utils import get_stats_by_week
+from app.utils.stats_utils import get_stats_by_week, get_stats_past_days
 
 
 def get_post_week_stats(past=1, *args, **kwargs):
     return get_stats_by_week(Post.created_at, past, *args, **kwargs)
+
+
+def get_post_past_day_stats(past=7, *args, **kwargs):
+    return get_stats_past_days(Post.created_at, past, *args, **kwargs)
 
 
 def stats2data(stats):
@@ -32,14 +36,24 @@ class AdminIndexView(_AdminIndexView):
         comment_total = Comment.query.count()
         tag_total = Tag.query.count()
 
-        past = request.args.get('past', type=int, default=0)
-        stats = get_post_week_stats(past)
-        post_stats = stats2data(stats)
+        stats = request.args.get('stats', default='this-week')
 
-        if past == 1:
+        if stats == 'this-week':
+            stats = get_post_week_stats(1)
+            post_stats = stats2data(stats)
             stats_title = '上周文章发表数量'
-        else:
+        elif stats == 'last-week':
+            stats = get_post_week_stats(0)
+            post_stats = stats2data(stats)
             stats_title = '本周文章发表数量'
+        elif stats == 'past-7-days':
+            stats = get_post_past_day_stats()
+            post_stats = stats2data(stats)
+            stats_title = '过去7天文章发表数量'
+        else:
+            stats = get_post_week_stats(1)
+            post_stats = stats2data(stats)
+            stats_title = '上周文章发表数量'
 
         return self.render('admin/dashboard.html',
                            user_total=user_total,

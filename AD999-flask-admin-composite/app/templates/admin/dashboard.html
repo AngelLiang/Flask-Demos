@@ -41,8 +41,9 @@
 							<span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu pull-right" role="menu">
-							<li><a href="{{ url_for('admin.index', past=0) }}">本周文章发表数量</a></li>
-							<li><a href="{{ url_for('admin.index', past=1) }}">上周文章发表数量</a></li>
+							<li><a href="{{ url_for('admin.index', stats='this-week') }}">本周文章发表数量</a></li>
+							<li><a href="{{ url_for('admin.index', stats='last-week') }}">上周文章发表数量</a></li>
+							<li><a href="{{ url_for('admin.index', stats='past-7-days') }}">过去7天文章发表数量</a></li>
 						</ul>
 					</div>
 				</div>
