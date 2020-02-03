@@ -32,7 +32,8 @@
 	<div class="col-lg-12 col-md-12">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<i class="fa fa-bar-chart-o fa-fw"></i>{{ stats_title }}
+				<i class="fa fa-bar-chart-o fa-fw"></i>
+				{{ stats_actions[request.args['stats']][0] }}
 
 				<div class="pull-right">
 					<div class="btn-group">
@@ -41,12 +42,9 @@
 							<span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu pull-right" role="menu">
-							<li><a href="{{ url_for('admin.index', stats='this-week') }}">本周文章发表数量</a></li>
-							<li><a href="{{ url_for('admin.index', stats='last-week') }}">上周文章发表数量</a></li>
-							<li><a href="{{ url_for('admin.index', stats='past-7-days') }}">过去7天文章发表数量</a></li>
-							<li><a href="{{ url_for('admin.index', stats='past-30-days') }}">过去30天文章发表数量</a></li>
-							<li><a href="{{ url_for('admin.index', stats='this-month') }}">本月文章发表数量</a></li>
-							<li><a href="{{ url_for('admin.index', stats='last-month') }}">上月月文章发表数量</a></li>
+							{% for key, value in stats_actions.items() %}
+								<li><a href="{{ value[1] }}">{{ value[0] }}</a></li>
+							{% endfor %}
 						</ul>
 					</div>
 				</div>

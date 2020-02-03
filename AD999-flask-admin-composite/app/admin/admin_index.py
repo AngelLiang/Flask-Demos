@@ -41,36 +41,19 @@ class AdminIndexView(_AdminIndexView):
         comment_total = Comment.query.count()
         tag_total = Tag.query.count()
 
-        stats = request.args.get('stats', default='this-week')
+        stats_actions = {
+            'this-week': ('本周文章发表数量', url_for('admin.index', stats='this-week'), lambda: get_post_week_stats(0)),
+            'last-week': ('上周文章发表数量', url_for('admin.index', stats='last-week'), lambda: get_post_week_stats(-1)),
+            'this-month': ('本月文章发表数量', url_for('admin.index', stats='this-month'), lambda: get_post_month_status(0)),
+            'last-month': ('上月文章发表数量', url_for('admin.index', stats='last-month'), lambda: get_post_month_status(-1)),
+            'past-7-days': ('过去7天文章发表数量', url_for('admin.index', stats='past-7-days'), lambda: get_post_past_day_stats(-7)),
+            'past-14-days': ('过去14天文章发表数量', url_for('admin.index', stats='past-14-days'), lambda: get_post_past_day_stats(-14)),
+            'past-30-days': ('过去30天文章发表数量', url_for('admin.index', stats='past-30-days'), lambda: get_post_past_day_stats(-30)),
+        }
 
-        if stats == 'this-week':
-            stats = get_post_week_stats(0)
-            post_stats = stats2data(stats)
-            stats_title = '本周文章发表数量'
-        elif stats == 'last-week':
-            stats = get_post_week_stats(-1)
-            post_stats = stats2data(stats)
-            stats_title = '上周文章发表数量'
-        elif stats == 'past-7-days':
-            stats = get_post_past_day_stats(-7)
-            post_stats = stats2data(stats)
-            stats_title = '过去7天文章发表数量'
-        elif stats == 'past-30-days':
-            stats = get_post_past_day_stats(-30)
-            post_stats = stats2data(stats)
-            stats_title = '过去30天文章发表数量'
-        elif stats == 'this-month':
-            stats = get_post_month_status(0)
-            post_stats = stats2data(stats)
-            stats_title = '本月文章发表数量'
-        elif stats == 'last-month':
-            stats = get_post_month_status(-1)
-            post_stats = stats2data(stats)
-            stats_title = '上月文章发表数量'
-        else:
-            stats = get_post_week_stats(1)
-            post_stats = stats2data(stats)
-            stats_title = '上周文章发表数量'
+        stats = request.args.get('stats', default='this-week')
+        stats_data = stats_actions[stats][2]()
+        post_stats = stats2data(stats_data)
 
         return self.render('admin/dashboard.html',
                            user_total=user_total,
@@ -78,7 +61,7 @@ class AdminIndexView(_AdminIndexView):
                            comment_total=comment_total,
                            tag_total=tag_total,
                            post_stats=post_stats,
-                           stats_title=stats_title)
+                           stats_actions=stats_actions)
 
     @expose('/login', methods=('GET', 'POST'))
     def login_view(self):
