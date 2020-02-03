@@ -90,7 +90,7 @@
 			xkey: 'period',
 			ykeys: ['count'],
 			labels: ['Count'],
-			xLabels: "day",
+			xLabels: "{{ x_labels or 'days' }}" ,
 			resize: true,
 		});
 	</script>

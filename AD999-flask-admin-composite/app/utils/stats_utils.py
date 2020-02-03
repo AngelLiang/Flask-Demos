@@ -17,7 +17,7 @@ def get_today():
 
 
 def get_day(days=0):
-    return datetime.date.today() - datetime.timedelta(days=-days)
+    return datetime.date.today() + datetime.timedelta(days=days)
 
 
 def get_month():
@@ -126,7 +126,6 @@ def get_stats_by_month(session, datetime_column, months, autofill=True):
     :param months: int, 用负数表示过去的月数
     :param autofill: bool, 是否自动填充没有的数据
     """
-
     first_day, last_day = get_first_day_and_last_day_by_month(months)
     stats = session.query(
         datetime_column, func.count('*')
@@ -145,5 +144,33 @@ def get_stats_by_month(session, datetime_column, months, autofill=True):
         while len(stats) < delta:
             stats.append(
                 (stats[-1][0]+datetime.timedelta(days=ONE_DAY), EMPTY_DATA))
+
+    return stats
+
+
+def get_stats_by_year(session, datetime_column, years, sep='month', autofill=True):
+    """获取年统计数据
+
+    :param session: db.sessoin
+    :param datetime_column: ORM Column
+    :param months: int, 用负数表示过去的年份
+    :param autofill: bool, 是否自动填充没有的数据
+    """
+
+    year = get_year()+years
+
+    first_day = datetime.date(year=year, month=1, day=1)
+    last_day = datetime.date(year=year, month=12, day=31)
+
+    stats = session.query(
+        datetime_column, func.count('*')
+    ).filter(
+        first_day <= datetime_column, datetime_column <= last_day
+    ).group_by(
+        extract(sep, datetime_column)
+    ).all()
+
+    if autofill:
+        pass
 
     return stats

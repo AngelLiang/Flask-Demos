@@ -6,19 +6,23 @@ from flask_login import current_user, login_user, logout_user
 
 from app.extensions import db
 from app.models import User, Post, Tag, Comment
-from app.utils.stats_utils import get_stats_by_days, get_stats_by_week, get_stats_by_month
+from app.utils.stats_utils import get_stats_by_days, get_stats_by_week, get_stats_by_month, get_stats_by_year
 
 
-def get_post_week_stats(past):
-    return get_stats_by_week(db.session, Post.created_at, past)
+def get_post_week_stats(weeks=0):
+    return get_stats_by_week(db.session, Post.created_at, weeks)
 
 
-def get_post_past_day_stats(past):
-    return get_stats_by_days(db.session, Post.created_at, past)
+def get_post_past_day_stats(days=0):
+    return get_stats_by_days(db.session, Post.created_at, days)
 
 
-def get_post_month_status(months):
+def get_post_month_status(months=0):
     return get_stats_by_month(db.session, Post.created_at, months)
+
+
+def get_post_year_status(years=0, sep='day'):
+    return get_stats_by_year(db.session, Post.created_at, years, sep)
 
 
 def stats2data(stats):
@@ -49,6 +53,7 @@ class AdminIndexView(_AdminIndexView):
             'past-7-days': ('过去7天文章发表数量', url_for('admin.index', stats='past-7-days'), lambda: get_post_past_day_stats(-7)),
             'past-14-days': ('过去14天文章发表数量', url_for('admin.index', stats='past-14-days'), lambda: get_post_past_day_stats(-14)),
             'past-30-days': ('过去30天文章发表数量', url_for('admin.index', stats='past-30-days'), lambda: get_post_past_day_stats(-30)),
+            'this-year': ('今年文章发表数量', url_for('admin.index', stats='this-year'), lambda: get_post_year_status()),
         }
 
         stats = request.args.get('stats', default='this-week')

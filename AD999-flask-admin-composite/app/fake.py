@@ -14,7 +14,7 @@ def fake_admin(username='admin', password='admin'):
     db.session.commit()
 
 
-def initdata(user_count=50, post_count=500, tag_count=20, comment_count=800, alert_count=10):
+def initdata(user_count=50, post_count=1000, tag_count=20, comment_count=800, alert_count=10):
 
     users = []
     for i in range(user_count):
@@ -44,7 +44,7 @@ def initdata(user_count=50, post_count=500, tag_count=20, comment_count=800, ale
                 Tag.query.get(random.randrange(1, Tag.query.count()))
             ])),
             user_id=random.randrange(1, User.query.count()),
-            created_at=fake.date_time_between(start_date='-35d')
+            created_at=fake.date_time_between(start_date='-365d')
         )
         posts.append(post)
     db.session.add_all(posts)
@@ -56,7 +56,7 @@ def initdata(user_count=50, post_count=500, tag_count=20, comment_count=800, ale
             content=fake.sentence(),
             user_id=random.randrange(1, User.query.count()),
             post_id=random.randrange(1, Post.query.count()),
-            created_at=fake.date_time_between(start_date='-35d')
+            created_at=fake.date_time_between(start_date='-365d')
         )
         comments.append(comment)
     db.session.add_all(comments)
