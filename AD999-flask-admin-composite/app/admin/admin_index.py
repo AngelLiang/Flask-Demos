@@ -4,16 +4,21 @@ from flask_admin import AdminIndexView as _AdminIndexView
 from flask_admin import helpers
 from flask_login import current_user, login_user, logout_user
 
+from app.extensions import db
 from app.models import User, Post, Tag, Comment
-from app.utils.stats_utils import get_stats_by_week, get_stats_past_days
+from app.utils.stats_utils import get_stats_by_days, get_stats_by_week, get_stats_by_month
 
 
-def get_post_week_stats(past=1, *args, **kwargs):
-    return get_stats_by_week(Post.created_at, past, *args, **kwargs)
+def get_post_week_stats(past):
+    return get_stats_by_week(db.session, Post.created_at, past)
 
 
-def get_post_past_day_stats(past=7, *args, **kwargs):
-    return get_stats_past_days(Post.created_at, past, *args, **kwargs)
+def get_post_past_day_stats(past):
+    return get_stats_by_days(db.session, Post.created_at, past)
+
+
+def get_post_month_status(months):
+    return get_stats_by_month(db.session, Post.created_at, months)
 
 
 def stats2data(stats):
@@ -39,17 +44,29 @@ class AdminIndexView(_AdminIndexView):
         stats = request.args.get('stats', default='this-week')
 
         if stats == 'this-week':
-            stats = get_post_week_stats(1)
-            post_stats = stats2data(stats)
-            stats_title = '上周文章发表数量'
-        elif stats == 'last-week':
             stats = get_post_week_stats(0)
             post_stats = stats2data(stats)
             stats_title = '本周文章发表数量'
+        elif stats == 'last-week':
+            stats = get_post_week_stats(-1)
+            post_stats = stats2data(stats)
+            stats_title = '上周文章发表数量'
         elif stats == 'past-7-days':
-            stats = get_post_past_day_stats()
+            stats = get_post_past_day_stats(-7)
             post_stats = stats2data(stats)
             stats_title = '过去7天文章发表数量'
+        elif stats == 'past-30-days':
+            stats = get_post_past_day_stats(-30)
+            post_stats = stats2data(stats)
+            stats_title = '过去30天文章发表数量'
+        elif stats == 'this-month':
+            stats = get_post_month_status(0)
+            post_stats = stats2data(stats)
+            stats_title = '本月文章发表数量'
+        elif stats == 'last-month':
+            stats = get_post_month_status(-1)
+            post_stats = stats2data(stats)
+            stats_title = '上月文章发表数量'
         else:
             stats = get_post_week_stats(1)
             post_stats = stats2data(stats)
