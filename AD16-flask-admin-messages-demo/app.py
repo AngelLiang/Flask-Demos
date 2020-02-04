@@ -1,15 +1,20 @@
 import datetime as dt
 from sqlalchemy import desc
 
-from flask import Flask, url_for
+from flask import Flask, url_for, request, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
-from flask_admin import Admin
+from flask_admin import Admin, expose
+from flask_admin.model.template import EndpointLinkRowAction
 from flask_admin.contrib.sqla import ModelView
 from flask_login import LoginManager, UserMixin, current_user
+from flask_bootstrap import Bootstrap
+
+from forms import MessageForm
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 admin = Admin(template_mode='bootstrap3')
+bootstrap = Bootstrap()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '123456790'
@@ -20,6 +25,7 @@ db.init_app(app)
 db.app = app
 admin.init_app(app)
 login_manager.init_app(app)
+bootstrap.init_app(app)
 
 
 class User(db.Model, UserMixin):
@@ -90,6 +96,30 @@ class UserModelView(BaseModelView):
 
     can_delete = False
 
+    column_extra_row_actions = [
+        # LinkRowAction('glyphicon glyphicon-off', 'http://localhost/?id={row_id}'),
+        EndpointLinkRowAction(
+            'glyphicon glyphicon-envelope', '.send_message')
+    ]
+
+    @expose('/send-message', methods=['GET', 'POST'])
+    def send_message(self):
+        id = request.args.get('id')
+        recipient = User.query.get(id)
+        if recipient is None:
+            flash('user_id is error.', 'error')
+            return redirect(url_for('.index_view'))
+        form = MessageForm()
+        if form.validate_on_submit():
+            msg = Message(sender=current_user,
+                          recipient=recipient,
+                          body=form.message.data)
+            db.session.add(msg)
+            db.session.commit()
+            flash(f'Your message has been sent to {recipient.name or recipient.username}')
+            return redirect(url_for('.index_view'))
+        return self.render('/send_message.html', form=form, recipient=recipient)
+
 
 class MessageModelView(BaseModelView):
     column_list = ('sender.name', 'recipient.name',
@@ -103,6 +133,11 @@ class MessageModelView(BaseModelView):
 
 admin.add_view(UserModelView(User, db.session))
 admin.add_view(MessageModelView(Message, db.session))
+
+
+@app.route('/')
+def index():
+    return '<a href="/admin/">Click me to go to Admin!</a>'
 
 
 def initdb(user_count=50, message_count=100):
@@ -146,9 +181,15 @@ def init_data():
     initdb()
 
 
-@app.route('/')
-def index():
-    return '<a href="/admin/">Click me to go to Admin!</a>'
+@app.cli.command()
+def build():
+    """Build sb-admin-2 frontend"""
+    import os
+    import subprocess
+
+    path = os.path.join(app.root_path, 'static', 'sb-admin-2')
+    os.chdir(path)
+    subprocess.call(['bower', 'install'], shell=True)
 
 
 if __name__ == "__main__":

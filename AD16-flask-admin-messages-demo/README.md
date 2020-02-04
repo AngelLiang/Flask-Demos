@@ -3,11 +3,12 @@
 ## 快速开始
 
     pipenv install
-    pipenv run flask run
+    pipenv shell
+    flask build
+    flask run
 
 
-
-参考资料：
+## 参考资料
 
 - https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xxi-user-notifications
 
