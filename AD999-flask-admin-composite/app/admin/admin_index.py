@@ -7,6 +7,7 @@ from flask_login import current_user, login_user, logout_user
 from app.extensions import db
 from app.models import User, Post, Tag, Comment
 from app.utils.stats_utils import get_stats_by_days, get_stats_by_week, get_stats_by_month, get_stats_by_year
+from .mixins import AlertsMixin
 
 
 def get_post_week_stats(weeks=0):
@@ -33,7 +34,7 @@ def stats2data(stats):
     return data
 
 
-class AdminIndexView(_AdminIndexView):
+class AdminIndexView(AlertsMixin, _AdminIndexView):
 
     @expose('/')
     def index(self):
