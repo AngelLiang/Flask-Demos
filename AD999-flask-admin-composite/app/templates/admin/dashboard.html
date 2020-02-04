@@ -33,7 +33,8 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<i class="fa fa-bar-chart-o fa-fw"></i>
-				{{ stats_actions[request.args['stats']][0] }}
+
+				{{ stats_actions[request.args.get('stats', 'this-week')][0] }}
 
 				<div class="pull-right">
 					<div class="btn-group">
