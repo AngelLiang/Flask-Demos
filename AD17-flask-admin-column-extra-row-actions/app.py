@@ -31,7 +31,7 @@ class UserModelView(ModelView):
 
     can_delete = False
 
-    # 给 flask-admin 每个 row 数据添加额外的 action
+    # 给 flask-admin 每个 row 添加额外的 action
     column_extra_row_actions = [
         EndpointLinkRowAction('glyphicon glyphicon-envelope', '.approve'),
         LinkRowAction('glyphicon glyphicon-off', ''),
