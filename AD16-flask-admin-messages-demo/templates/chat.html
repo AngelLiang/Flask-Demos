@@ -64,7 +64,7 @@
             <!-- /.panel-body -->
 
             <div class="panel-footer">
-                <div class="input-group">
+                {# <div class="input-group"> #}
 
                     {# demo #}
                     {# <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
@@ -72,13 +72,13 @@
                         <button class="btn btn-warning btn-sm" id="btn-chat">Send</button>
                     </span> #}
 
-                    <form action="{{ action or '' }}" method="POST" class="form" role="form" enctype="multipart/form-data">
+                    <form action="{{ action or '' }}" method="POST" class="form form-inline" role="form" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
-                        {{ form.message() }}
-                        {{ form.submit(class="btn btn-warning btn-sm") }}
+                        {{ form.message(id="btn-input") }}
+                        {{ form.submit(class="btn btn-warning btn-sm", id="btn-chat") }}
                     </form>
 
-                </div>
+                {# </div> #}
             </div>
             <!-- /.panel-footer -->
 
