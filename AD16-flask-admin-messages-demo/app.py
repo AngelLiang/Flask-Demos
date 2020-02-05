@@ -133,9 +133,7 @@ class UserModelView(BaseModelView):
     can_delete = False
 
     column_extra_row_actions = [
-        # LinkRowAction('glyphicon glyphicon-off', 'http://localhost/?id={row_id}'),
-        EndpointLinkRowAction(
-            'glyphicon glyphicon-envelope', '.chat')
+        EndpointLinkRowAction('glyphicon glyphicon-envelope', '.chat')
     ]
 
     @expose('/chat', methods=['GET', 'POST'])
