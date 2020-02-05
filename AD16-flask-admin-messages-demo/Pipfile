@@ -14,6 +14,7 @@ flask-login = "*"
 faker = "*"
 flask-wtf = "*"
 flask-bootstrap = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.6"

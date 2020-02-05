@@ -44,7 +44,7 @@
                 <i class="fa fa-caret-down"></i>
             </a>
             <ul class="dropdown-menu dropdown-messages">
-                {% for m in new_messages %}
+                {% for m in new_messages[:3] %}
                     {{ message_summary(m.recipient.name, m.sender.name, m.body, m.url) }}
                     <li class="divider"></li>
                 {% endfor %}

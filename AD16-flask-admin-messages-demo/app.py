@@ -1,5 +1,5 @@
 import datetime as dt
-from sqlalchemy import desc
+from sqlalchemy import desc, or_, and_
 
 from flask import Flask, url_for, request, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
@@ -34,6 +34,10 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80))
     password_hash = db.Column(db.String(128))
 
+    @property
+    def avatar_url(self):
+        return url_for('avatar', username=self.username)
+
     def set_password(self, passowrd):
         self.password_hash = passowrd
 
@@ -47,11 +51,12 @@ class User(db.Model, UserMixin):
         backref='recipient', lazy='dynamic')
 
     def new_messages(self):
-        messages = Message.query.filter_by(recipient=self, is_read=False).order_by(
-            desc(Message.created_at)).all()
+        messages = Message.query.filter_by(
+            recipient=self, is_read=False
+        ).order_by(desc(Message.created_at)).all()
         for message in messages:
             setattr(message, 'url', url_for(
-                'message.details_view', id=message.id))
+                'user.chat', id=message.sender_id))
         return messages
 
 
@@ -99,26 +104,32 @@ class UserModelView(BaseModelView):
     column_extra_row_actions = [
         # LinkRowAction('glyphicon glyphicon-off', 'http://localhost/?id={row_id}'),
         EndpointLinkRowAction(
-            'glyphicon glyphicon-envelope', '.send_message')
+            'glyphicon glyphicon-envelope', '.chat')
     ]
 
-    @expose('/send-message', methods=['GET', 'POST'])
-    def send_message(self):
+    @expose('/chat', methods=['GET', 'POST'])
+    def chat(self):
         id = request.args.get('id')
         recipient = User.query.get(id)
         if recipient is None:
             flash('user_id is error.', 'error')
             return redirect(url_for('.index_view'))
-        form = MessageForm()
-        if form.validate_on_submit():
-            msg = Message(sender=current_user,
-                          recipient=recipient,
-                          body=form.message.data)
-            db.session.add(msg)
-            db.session.commit()
-            flash(f'Your message has been sent to {recipient.name or recipient.username}')
-            return redirect(url_for('.index_view'))
-        return self.render('/send_message.html', form=form, recipient=recipient)
+        messages = Message.query.filter(
+            or_(
+                and_(
+                    Message.sender == current_user,
+                    Message.recipient == recipient
+                ),
+                and_(
+                    Message.sender == recipient,
+                    Message.recipient == current_user
+                ),
+            )
+        ).all()
+        return self.render('/chat.html',
+                           sender=current_user,
+                           recipient=recipient,
+                           messages=messages)
 
 
 class MessageModelView(BaseModelView):
@@ -140,7 +151,23 @@ def index():
     return '<a href="/admin/">Click me to go to Admin!</a>'
 
 
-def initdb(user_count=50, message_count=100):
+@app.route('/avatar/<username>')
+def avatar(username):
+    """生成头像"""
+    from flask import make_response, request
+    from randomavator import Avatar
+
+    width = request.args.get('width', type=int, default=50)
+    height = request.args.get('height', type=int, default=50)
+
+    avatar = Avatar(rows=10, columns=10)
+    image = avatar.get_image(username, width=width, height=height)
+    response = make_response(image)
+    response.headers['Context-Type'] = 'image/gif'
+    return response
+
+
+def initdb(user_count=50, message_count=1000):
     import random
     from faker import Faker
     fake = Faker('zh_CN')

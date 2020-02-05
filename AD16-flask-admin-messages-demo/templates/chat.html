@@ -1,0 +1,84 @@
+{% extends 'admin/master.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% macro render_chat_body(name, body, time) %}
+<div class="chat-body clearfix">
+    <div class="header">
+        <strong class="primary-font">{{  name}}</strong>
+        <small class="pull-right text-muted">
+            <i class="fa fa-clock-o fa-fw"></i> {{ time }}
+        </small>
+    </div>
+    <p> {{ body }}</p>
+</div>
+{% endmacro %}
+
+
+{% macro render_chat_item(position, name, avatar_url , body, time) %}
+<li class="{{ position }} clearfix">
+    <span class="chat-img pull-{{- position -}}">
+        <img src="{{ avatar_url }}" alt="User Avatar" class="img-circle" />
+    </span>
+    {{ render_chat_body(name, body, time)  }}
+</li>
+{% endmacro %}
+
+{% macro render_chat_left_item(recipient, body, time) %}
+    {{ render_chat_item('left', recipient.name, recipient.avatar_url , body, time) }}
+{% endmacro %}
+
+{% macro render_chat_right_item(sender, body, time) %}
+    {{ render_chat_item('right', sender.name, sender.avatar_url , body, time) }}
+{% endmacro %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+
+        <div class="chat-panel panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-comments fa-fw"></i>
+                Chat to {{ recipient.name }}
+            </div>
+
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <ul class="chat">
+
+                    {# demo #}
+                    {# {{ render_chat_left_item(recipient, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare dolor, quis ullamcorper ligula sodales.', '15 mins ago')  }}
+                    {{ render_chat_right_item(sender, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare dolor, quis ullamcorper ligula sodales.', '14 mins ago') }}
+                    {{ render_chat_left_item(recipient, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare dolor, quis ullamcorper ligula sodales.', '13 mins ago')  }}
+                    {{ render_chat_right_item(sender, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare dolor, quis ullamcorper ligula sodales.', '12 mins ago') }} #}
+
+                    {% for msg in messages %}
+                        {% if msg.sender == current_user %}
+                            {{ render_chat_right_item(sender, msg.body, msg.created_at) }}
+                        {% elif msg.sender == recipient %}
+                            {{ render_chat_left_item(recipient, msg.body, msg.created_at) }}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- /.panel-body -->
+
+            <div class="panel-footer">
+                <div class="input-group">
+                    <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
+                    <span class="input-group-btn">
+                        <button class="btn btn-warning btn-sm" id="btn-chat">
+                            Send
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <!-- /.panel-footer -->
+
+        </div>
+        <!-- /.panel .chat-panel -->
+
+    </div>
+</div>
+
+{% endblock %}
