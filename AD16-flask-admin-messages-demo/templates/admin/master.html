@@ -36,7 +36,11 @@
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="fa fa-envelope fa-fw"></i>
 
-                {% set new_messages = current_user.new_messages() %}
+                {% if current_user.is_authentication %}
+                    {% set new_messages = current_user.new_messages() %}
+                {% else %}
+                    {% set new_messages = [] %}
+                {% endif %}
                 {% if new_messages %}
                     <span class="badge">{{ new_messages|length }}</span>
                 {% endif %}

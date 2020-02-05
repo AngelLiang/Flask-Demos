@@ -65,12 +65,19 @@
 
             <div class="panel-footer">
                 <div class="input-group">
-                    <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
+
+                    {# demo #}
+                    {# <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
                     <span class="input-group-btn">
-                        <button class="btn btn-warning btn-sm" id="btn-chat">
-                            Send
-                        </button>
-                    </span>
+                        <button class="btn btn-warning btn-sm" id="btn-chat">Send</button>
+                    </span> #}
+
+                    <form action="{{ action or '' }}" method="POST" class="form" role="form" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        {{ form.message() }}
+                        {{ form.submit(class="btn btn-warning btn-sm") }}
+                    </form>
+
                 </div>
             </div>
             <!-- /.panel-footer -->

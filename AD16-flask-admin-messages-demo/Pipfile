@@ -15,6 +15,7 @@ faker = "*"
 flask-wtf = "*"
 flask-bootstrap = "*"
 pillow = "*"
+flask-httpauth = "*"
 
 [requires]
 python_version = "3.6"

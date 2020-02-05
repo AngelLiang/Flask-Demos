@@ -4,17 +4,36 @@ from sqlalchemy import desc, or_, and_
 from flask import Flask, url_for, request, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin, expose
+from flask_admin import AdminIndexView as BaseAdminIndexView
 from flask_admin.model.template import EndpointLinkRowAction
 from flask_admin.contrib.sqla import ModelView
-from flask_login import LoginManager, UserMixin, current_user
+from flask_login import LoginManager, UserMixin, login_user, current_user
 from flask_bootstrap import Bootstrap
+from flask_httpauth import HTTPBasicAuth
 
-from forms import MessageForm
+from forms import ChatInputForm
+
+
+class AdminAuthMixin(object):
+
+    def is_accessible(self):
+        _auth = auth.get_auth()
+        password = auth.get_auth_password(_auth)
+        return auth.authenticate(_auth, password)
+
+    def inaccessible_callback(self, name, **kwargs):
+        return auth.auth_error_callback()
+
+
+class AdminIndexView(AdminAuthMixin, BaseAdminIndexView):
+    pass
+
 
 db = SQLAlchemy()
 login_manager = LoginManager()
-admin = Admin(template_mode='bootstrap3')
+admin = Admin(template_mode='bootstrap3', index_view=AdminIndexView())
 bootstrap = Bootstrap()
+auth = HTTPBasicAuth()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '123456790'
@@ -41,6 +60,9 @@ class User(db.Model, UserMixin):
     def set_password(self, passowrd):
         self.password_hash = passowrd
 
+    def verify_password(self, password):
+        return self.password_hash == password
+
     messages_sent = db.relationship(
         'Message',
         foreign_keys='Message.sender_id',
@@ -58,6 +80,15 @@ class User(db.Model, UserMixin):
             setattr(message, 'url', url_for(
                 'user.chat', id=message.sender_id))
         return messages
+
+
+@auth.verify_password
+def auth_verify_password(username, password):
+    user = User.query.filter_by(username=username).first()
+    if user and user.verify_password(password):
+        login_user(user)
+        return True
+    return False
 
 
 @login_manager.user_loader
@@ -91,7 +122,7 @@ class MessagesMixin(object):
         return messages
 
 
-class BaseModelView(MessagesMixin, ModelView):
+class BaseModelView(AdminAuthMixin, MessagesMixin, ModelView):
     pass
 
 
@@ -114,6 +145,15 @@ class UserModelView(BaseModelView):
         if recipient is None:
             flash('user_id is error.', 'error')
             return redirect(url_for('.index_view'))
+
+        form = ChatInputForm()
+        if request.method == 'POST' and form.validate():
+            msg = Message(sender=current_user, recipient=recipient,
+                          body=form.message.data)
+            db.session.add(msg)
+            db.session.commit()
+            # flash('发送消息成功')
+
         messages = Message.query.filter(
             or_(
                 and_(
@@ -129,6 +169,7 @@ class UserModelView(BaseModelView):
         return self.render('/chat.html',
                            sender=current_user,
                            recipient=recipient,
+                           form=form,
                            messages=messages)
 
 
@@ -186,6 +227,7 @@ def initdb(user_count=50, message_count=1000):
             name=fake.name(),
             username=fake.profile()['username'],
         )
+        user.set_password('123456')
         users.append(user)
     db.session.add_all(users)
     db.session.commit()
