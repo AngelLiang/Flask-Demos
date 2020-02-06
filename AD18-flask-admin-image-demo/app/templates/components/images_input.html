@@ -1,0 +1,21 @@
+<div id="images-field-panel">
+  <input type='hidden' name='images-to-delete' id='images-to-delete' value=""/>
+  <input type="file" id="images_placeholder" multiple name="images_placeholder" style="display: none;"/>
+  <ul id="images-preview-panel" class="list-inline">
+    {% for obj in associated_images %}
+      <li id={{ obj.id }}>
+        <div>
+          <a href="{{ obj.path }}" data-title="{{ obj.title or '' }}" data-lightbox="images">
+            <img src="{{ obj.path }}"/>
+          </a>
+          <span class="glyphicon glyphicon-remove-circle" id="delete-{{ obj.id }}"></span>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+  <div id="upload_text_trigger" class="btn btn-default center-block">
+    <span class="glyphicon glyphicon-upload" style="font-size:25px;vertical-align:inherit">
+      <span style="font-size:11px;vertical-align:super">请选择上传图片(可一次上传多张)</span>
+    </span>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+<ul id="images-preview-panel" class="list-inline">
+  {% for obj in associated_images %}
+    <li id={{ obj.id }}>
+      <div>
+        <a href="{{ url_for('images.download', path=obj.path) }}" data-title="{{ obj.title or '' }}" data-lightbox="images">
+          <img src="{{ url_for('images.download', path=obj.path) }}"/>
+        </a>
+      </div>
+    </li>
+  {% endfor %}
+</ul>
