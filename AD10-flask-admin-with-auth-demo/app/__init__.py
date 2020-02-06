@@ -12,20 +12,12 @@ login_manager.init_app(app)
 admin.init_app(app)
 
 
-def init_jinja2_functions(app):
-    from .utils import is_field_error
-    app.add_template_global(is_field_error, 'is_field_error')
-
-
-init_jinja2_functions(app)
-
-
 @app.route('/')
 def index():
     return '<a href="/admin/">Click me to go to Admin!</a>'
 
 
-def initdata():
+def initdb():
     from .models import User
     db.drop_all()
     db.create_all()
@@ -37,4 +29,4 @@ def initdata():
 
 @app.before_first_request
 def before_first_request():
-    initdata()
+    initdb()

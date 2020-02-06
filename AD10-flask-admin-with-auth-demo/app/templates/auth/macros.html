@@ -17,7 +17,7 @@
 {% endmacro %}
 
 {% macro _render_field(field, kwargs) %}
-    {% set direct_error = is_field_error(field.errors) %}
+    {% set direct_error = field.errors %}
     <div class="{{ kwargs.get('column_class', 'col-md-9') }}">
       {% set _dummy = kwargs.setdefault('class', 'form-control') %}
       {{ field(**kwargs)|safe }}
@@ -52,7 +52,7 @@
 
  #}
 {% macro render_field(form, field, kwargs={}, caller=None) %}
-  {% set direct_error = is_field_error(field.errors) %}
+  {% set direct_error = field.errors %}
   <div class="form-group{{ ' has-error' if direct_error else '' }}">
     {{ render_label(field) }}
     {{ _render_field(field, kwargs) }}
