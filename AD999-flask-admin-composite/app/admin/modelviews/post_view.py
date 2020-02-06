@@ -1,4 +1,3 @@
-from app.extensions import db, admin
 from app.models import User, Post
 
 from .base import ModelView
@@ -37,5 +36,3 @@ class PostModelView(ModelView):
         }
     ]
 
-
-admin.add_view(PostModelView(Post, db.session, name='文章'))

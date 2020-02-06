@@ -1,6 +1,3 @@
-from app.extensions import db, admin
-from app.models import User
-
 from .base import ModelView
 
 
@@ -21,7 +18,3 @@ class UserModelView(ModelView):
 
     # form
     form_excluded_columns = ('password_hash',)
-
-
-admin.add_view(UserModelView(User, db.session, name='用户',
-                             menu_icon_type='glyph', menu_icon_value='glyphicon-user'))

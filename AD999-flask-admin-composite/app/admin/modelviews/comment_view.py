@@ -1,4 +1,3 @@
-from app.extensions import db, admin
 from app.models import User, Post, Comment
 
 from .base import ModelView
@@ -34,5 +33,3 @@ class CommentModelView(ModelView):
         }
     ]
 
-
-admin.add_view(CommentModelView(Comment, db.session, name='评论'))

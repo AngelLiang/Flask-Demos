@@ -36,4 +36,6 @@ def register_extensions(app):
     babel.init_app(app)
     admin.init_app(app)
     admin.name = app.config['APP_NAME']
+    from app.admin.modelviews import register_model_views
+    register_model_views(admin, app)
     login_manager.init_app(app)

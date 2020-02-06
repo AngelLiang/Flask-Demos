@@ -9,6 +9,3 @@ class AlertModelView(ModelView):
     column_default_sort = ('created_at', True)
 
     can_view_details = True
-
-
-admin.add_view(AlertModelView(Alert, db.session, name='通知'))
