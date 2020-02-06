@@ -21,14 +21,6 @@ db.app = app
 login_manager.init_app(app)
 
 
-def init_jinja2_functions(app):
-    from .utils import is_field_error
-    app.add_template_global(is_field_error, 'is_field_error')
-
-
-init_jinja2_functions(app)
-
-
 @app.cli.command()
 def build():
     """Build sb-admin-2 frontend"""

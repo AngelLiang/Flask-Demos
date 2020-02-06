@@ -45,7 +45,7 @@ def index():
     return f'<div>hello {current_user.username}, <a href="{href}">logout</a></div>'
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/auth/login', methods=['GET', 'POST'])
 def login():
     """登录"""
     redirect_url = request.args.get('next') or url_for('index')
