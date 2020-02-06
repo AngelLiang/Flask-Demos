@@ -2,7 +2,7 @@ import os.path as op
 from flask import request
 from wtforms import StringField
 
-DEFAULT_ENDPOINT = 'imagefileadmin.download'
+from .image import get_image_endpoint
 
 
 class ImageInput(object):
@@ -27,7 +27,7 @@ class ImageInput(object):
             associated_images = []
         return render_template('components/images_input.html',
                                associated_images=associated_images,
-                               image_endpoint=DEFAULT_ENDPOINT)
+                               image_endpoint=get_image_endpoint())
 
 
 class ImageField(StringField):

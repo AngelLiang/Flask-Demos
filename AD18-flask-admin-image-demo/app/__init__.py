@@ -9,7 +9,7 @@ app.config['SECRET_KEY'] = '123456790'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['IMAGES_FOLDER_PATH'] = op.join(os.getcwd(), 'images')
-
+app.config['IMAGES_DOWNLOAD_ENDPOINT'] = 'image.download'
 
 from app.extensions import register_extensions, db
 register_extensions(app)

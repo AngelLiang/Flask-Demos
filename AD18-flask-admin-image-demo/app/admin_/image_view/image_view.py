@@ -1,4 +1,5 @@
-
+import os
+from flask_admin import expose
 from flask_admin.contrib.fileadmin import FileAdmin
 from flask_admin.contrib.sqla import ModelView
 
@@ -31,3 +32,14 @@ class ImageView(ModelView):
 
 class ImageModelView(ImageView):
     column_list = ('name', 'path')
+
+    def __init__(self, *args, path, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.path = path
+        if not os.path.exists(self.path):
+            os.mkdir(self.path)
+
+    @expose('/download/<path:filename>')
+    def download(self, filename):
+        from flask import send_from_directory
+        return send_from_directory(self.path, filename)

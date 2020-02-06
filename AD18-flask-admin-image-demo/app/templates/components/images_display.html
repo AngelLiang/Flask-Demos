@@ -2,8 +2,8 @@
   {%- for obj in associated_images -%}
     <li id="{{ obj.id }}">
       <div>
-        <a href="{{ url_for(image_endpoint, path=obj.path) }}" data-title="{{ obj.title or '' }}" data-lightbox="images">
-          <img src="{{ url_for(image_endpoint, path=obj.path) }}"/>
+        <a href="{{ url_for(image_endpoint, filename=obj.path) }}" data-title="{{ obj.name or '' }}" data-lightbox="images">
+          <img src="{{ url_for(image_endpoint, filename=obj.path) }}"/>
         </a>
       </div>
     </li>

@@ -5,8 +5,8 @@
     {% for obj in associated_images %}
       <li id="{{ obj.id }}">
         <div>
-          <a href="{{ url_for(image_endpoint, path=obj.path or '') }}" data-title="{{ obj.name or '' }}" data-lightbox="images">
-            <img src="{{ url_for(image_endpoint, path=obj.path or '') }}"/>.
+          <a href="{{ url_for(image_endpoint, filename=obj.path or '') }}" data-title="{{ obj.name or '' }}" data-lightbox="images">
+            <img src="{{ url_for(image_endpoint, filename=obj.path or '') }}"/>.
           </a>
           <span class="glyphicon glyphicon-remove-circle" id="delete-{{ obj.id }}"></span>
         </div>

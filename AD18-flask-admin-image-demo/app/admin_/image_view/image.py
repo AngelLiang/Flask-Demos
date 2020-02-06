@@ -9,11 +9,13 @@ from flask_wtf import FlaskForm
 from flask_admin.contrib.fileadmin import FileAdmin
 from flask_admin.form import thumbgen_filename, ImageUploadField, ImageUploadInput
 
-DEFAULT_ENDPOINT = 'imagefileadmin.download'
-
 
 def get_image_path():
     return current_app.config['IMAGES_FOLDER_PATH']
+
+
+def get_image_endpoint():
+    return current_app.config.get('IMAGES_DOWNLOAD_ENDPOINT', 'image.download')
 
 
 def generate_image_name(obj, file_data):
@@ -60,11 +62,11 @@ class ImageShow(CustomImageUploadInput):
 class CustomImageUploadField(ImageUploadField):
     widget = CustomImageUploadInput()
 
-    def __init__(self, *args, endpoint=DEFAULT_ENDPOINT, **kwargs):
+    def __init__(self, *args, endpoint=None, **kwargs):
         super().__init__(label='Image',
                          namegen=generate_image_name,
                          base_path=lambda: get_image_path(),
-                         endpoint=endpoint,
+                         endpoint=endpoint or get_image_endpoint(),
                          max_size=(800, 800, False),
                          thumbnail_size=(100, 100, True),
                          *args, **kwargs)
@@ -73,11 +75,11 @@ class CustomImageUploadField(ImageUploadField):
 class CustomImageShowField(ImageUploadField):
     widget = ImageShow()
 
-    def __init__(self, *args, endpoint=DEFAULT_ENDPOINT, **kwargs):
+    def __init__(self, *args, endpoint=None, **kwargs):
         super().__init__(label='Image',
                          namegen=generate_image_name,
                          base_path=lambda: get_image_path(),
-                         endpoint=endpoint,
+                         endpoint=endpoint or get_image_endpoint(),
                          max_size=(800, 800, False),
                          thumbnail_size=None,
                          *args, **kwargs)
@@ -92,8 +94,8 @@ def _list_thumbnail(view, context, model, name):
         return ''
 
     html = f"""
-        <a href="{url_for(DEFAULT_ENDPOINT, path=model.path)}" target="_blank">
-            <img  src="{url_for(DEFAULT_ENDPOINT, path=thumbgen_filename(model.path))}">
+        <a href="{url_for(get_image_endpoint(), filename=model.path)}" target="_blank">
+            <img  src="{url_for(get_image_endpoint(), filename=thumbgen_filename(model.path))}">
         </a>
     """
     return Markup(html)
