@@ -147,7 +147,7 @@ class ImageView(ModelView):
 
 
 class ImageModelView(ImageView):
-    pass
+    column_list = ('name', 'path')
 
 ####################################################################
 
@@ -173,6 +173,11 @@ class ImageInlineModelConverter(sqla.form.InlineModelConverter):
 
 
 class ImageInlineModelForm(InlineFormAdmin):
+    column_labels = {
+        'name': '图片名称',
+        'path': '路径',
+    }
+    form_columns = ('id', 'name', 'path')
     form_extra_fields = {
         'path': CustomImageUploadField()
     }

@@ -16,7 +16,7 @@ register_extensions(app)
 
 
 def initdb():
-    # db.drop_all()
+    db.drop_all()
     db.create_all()
 
 
