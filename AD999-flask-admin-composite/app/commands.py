@@ -1,3 +1,5 @@
+import click
+
 from app.extensions import db
 
 
@@ -14,11 +16,28 @@ def register_commands(app):
         subprocess.call(['bower', 'install'], shell=True)
 
     @app.cli.command()
-    def initdb():
-        """Initialize database"""
+    @click.option('--drop', is_flag=True, help='Create after drop.')
+    def initdb(drop):
+        """Initialize the database."""
+        if drop:
+            click.confirm(
+                'This operation will delete the database, do you want to continue?', abort=True)
+            db.drop_all()
+            click.echo('Drop tables.')
+        db.create_all()
+        click.echo('Initialized database.')
+
+    @app.cli.command()
+    @click.option('--drop', is_flag=True, help='Create after drop.')
+    def fake(drop):
+        """fake data."""
         from app.fake import fake_admin, initdata
 
-        db.drop_all()
+        if drop:
+            click.confirm(
+                'This operation will delete the database, do you want to continue?', abort=True)
+            db.drop_all()
+            click.echo('Drop tables.')
         db.create_all()
 
         fake_admin()
