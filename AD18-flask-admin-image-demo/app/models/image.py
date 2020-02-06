@@ -62,6 +62,8 @@ def setup_listener(mapper, class_):
             # uselist=False,
             primaryjoin=remote(class_.id) == foreign(Image.object_id)
         ),
+        # 当该数据删除后，关联的图片也删除
+        cascade='all'
     )
 
     @listens_for(class_.images, 'append')
