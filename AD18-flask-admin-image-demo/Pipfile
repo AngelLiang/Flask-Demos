@@ -11,6 +11,7 @@ flask-admin = "*"
 flask-sqlalchemy = "*"
 python-dotenv = "*"
 pillow = "*"
+flask-wtf = "*"
 
 [requires]
 python_version = "3.6"

@@ -2,7 +2,7 @@ import os
 
 from app import db
 from app.models import Image, Goods
-from .image import ImageFileAdmin, ImageModelView
+from .image_view.image_view import ImageFileAdmin, ImageModelView
 from .goods import GoodsModelView
 
 

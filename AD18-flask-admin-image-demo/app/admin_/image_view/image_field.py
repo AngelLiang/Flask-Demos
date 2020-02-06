@@ -1,3 +1,5 @@
+import os.path as op
+from flask import request
 from wtforms import StringField
 
 DEFAULT_ENDPOINT = 'imagefileadmin.download'
@@ -37,33 +39,49 @@ class ImageField(StringField):
     def set_object_type(self, object_type):
         self.object_type = object_type
 
-    def populate_obj(self, obj, name):
-        from flask import request
+    def _delete_image(self, id, commit=False):
+        from app.extensions import db
+        from app.models.image import Image
+        image = Image.query.get(id)
+        db.session.delete(image)
+        if commit:
+            db.session.commit()
+
+    def _save_image(self, file_data, commit=False):
+        from app.extensions import db
+        from app.models.image import Image
+
+        from .image import ImageForm
+
+        image = Image()
+        form = ImageForm(image_upload=file_data)
+        form.validate()  # 使用 form 保存图片
+        form.image_upload.populate_obj(image, 'path')
+        image.name = image.path
+
+        db.session.add(image)
+        if commit:
+            db.session.commit()
+        return image
+
+    def delete_images_handle(self):
+        """处理要删除的图片"""
         images_to_del = request.form.get('images-to-delete')
         if len(images_to_del) > 0:
             to_del_ids = images_to_del.split(',')
             for to_del_id in to_del_ids:
-                pass
-                # TODO:
-                # db_util.delete_by_id(self.object_type, to_del_id, commit=False)
+                self._delete_image(to_del_id, commit=False)
+
+    def save_images_handle(self, obj, name):
+        """处理需要保存的图片"""
         files = request.files.getlist('images_placeholder')
         images = getattr(obj, name)
         for f in files:
             if len(f.filename) > 0:
-                pass
-                # TODO:
-                # image_owner = self.object_type()
-                # image = file_util.save_image(image_owner, f)
-                # Info.get_db().session.add(image)
-                # Info.get_db().session.add(image_owner)
-                # images.append(image_owner)
+                image = self._save_image(f)
+                images.append(image)
         setattr(obj, name, images)
 
-
-def images_formatter(view, context, model, name):
-    from flask import render_template
-    from wtforms.widgets import HTMLString
-    val = getattr(model, name)
-    return HTMLString(render_template("components/images_display.html",
-                                      associated_images=val,
-                                      image_endpoint=DEFAULT_ENDPOINT))
+    def populate_obj(self, obj, name):
+        self.delete_images_handle()
+        self.save_images_handle(obj, name)

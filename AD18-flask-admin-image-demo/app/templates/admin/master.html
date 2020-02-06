@@ -1,0 +1,13 @@
+{% extends 'admin/base.html' %}
+
+{% block head_css %}
+    {{ super() }}
+    {# 图片上传 #}
+    <link href="{{ url_for('static', filename='image_upload/image_upload.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block tail_js %}
+    {{ super() }}
+    {# 图片上传 #}
+    <script src="{{ url_for('static', filename='image_upload/image_upload.js') }}"></script>
+{% endblock %}

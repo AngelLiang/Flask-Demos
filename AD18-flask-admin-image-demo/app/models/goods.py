@@ -1,4 +1,4 @@
-
+from sqlalchemy.ext.hybrid import hybrid_property
 from app.extensions import db
 
 from .image import HasImagesMixin

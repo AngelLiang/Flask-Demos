@@ -1,0 +1,32 @@
+#images-preview-panel img {
+  height: 88px;
+}
+
+#images-preview-panel div {
+  padding-right: 10px;
+  padding-top: 10px;
+  position: relative;
+}
+
+#images-preview-panel div span[id^='delete-'] {
+  height: 22px;
+  width: 22px;
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  cursor: pointer;
+  font-size: 22px;
+  color: grey;
+}
+
+#images-field-panel {
+  border: 1px solid #cccccc;
+  padding: 15px;
+}
+
+#upload_text_trigger {
+  cursor: pointer;
+  margin-top: 20px;
+  width: 50%;
+}
