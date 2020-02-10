@@ -23,10 +23,8 @@ class User(db.Model):
 
 post_tags_table = db.Table(
     'post_tags', db.Model.metadata,
-    db.Column('post_id', db.Integer,
-              db.ForeignKey('post.id')),
-    db.Column('tag_id', db.Integer,
-              db.ForeignKey('tag.id'))
+    db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
 )
 
 
@@ -64,6 +62,7 @@ class UserModelView(ModelView):
 
 class PostModelView(ModelView):
     column_list = ('id', 'title', 'date', 'user')
+    column_default_sort = ('date', True)
 
     form_ajax_refs = {
         'user': {
@@ -78,12 +77,20 @@ admin.add_view(PostModelView(Post, db.session))
 
 def initdata(user_count=50, post_count=100):
     import random
+    from faker import Faker
+
+    fake = Faker()
+
     db.drop_all()
     db.create_all()
 
     users = []
     for i in range(user_count):
-        user = User(name=f'name{i+1}', username=f'user{i+1}')
+        profile = fake.simple_profile()
+        user = User(
+            name=profile['name'],
+            username=profile['username'],
+        )
         users.append(user)
     db.session.add_all(users)
     db.session.commit()
@@ -91,7 +98,8 @@ def initdata(user_count=50, post_count=100):
     posts = []
     for i in range(post_count):
         post = Post(
-            title=f'title{i+1}',
+            title=fake.sentence(),
+            date=fake.past_date(),
             user_id=random.randrange(1, User.query.count())
         )
         posts.append(post)
