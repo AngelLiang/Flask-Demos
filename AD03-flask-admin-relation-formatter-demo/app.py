@@ -1,8 +1,6 @@
-from jinja2 import Markup
-from flask import Flask, render_template
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView as BaseModelView
 
 db = SQLAlchemy()
 admin = Admin(template_mode='bootstrap3')
@@ -57,6 +55,10 @@ class Tag(db.Model):
 
 ####################################################################
 # formatter
+
+from jinja2 import Markup
+from flask import render_template
+
 
 def boolean_formatter(val_to_format):
     if val_to_format is None:
@@ -136,8 +138,11 @@ def user_formatter(view, context, model, name):
         return _user_obj_formatter(view, context, model, value=s)
     return ''
 
+
 ####################################################################
 # ModelView
+
+from flask_admin.contrib.sqla import ModelView as BaseModelView
 
 
 class ModelView(BaseModelView):
@@ -189,7 +194,7 @@ admin.add_view(UserModelView(User, db.session))
 admin.add_view(PostModelView(Post, db.session))
 
 
-def initdata(user_count=50, post_count=100, tag_count=20):
+def initdb(user_count=50, post_count=100, tag_count=20):
     import random
     from faker import Faker
     fake = Faker('zh_CN')
@@ -230,12 +235,12 @@ def initdata(user_count=50, post_count=100, tag_count=20):
 
 @app.route('/')
 def index():
-    return '<a href="/admin/">Click me to get to Admin!</a>'
+    return '<a href="/admin/">Click me to go to Admin!</a>'
 
 
 @app.before_first_request
 def init_data():
-    initdata()
+    initdb()
 
 
 if __name__ == "__main__":
