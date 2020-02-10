@@ -73,7 +73,7 @@ def boolean_formatter(val_to_format):
 
 def _obj_formatter_str(view, context, model,
                        value=None, model_name=None, title=None, fields=None,
-                       detail_fields=None, detail_field=None):
+                       detail_fields=None, detail_field=None, *args, **kwargs):
 
     endpoint = model_name
 
@@ -101,38 +101,32 @@ def _obj_formatter_str(view, context, model,
     return render_template('components/object_ref.html',
                            title=title, value=value, endpoint=endpoint,
                            header=header, detail_labels=detail_labels,
-                           detail_lines=detail_lines, view=view)
+                           detail_lines=detail_lines, view=view, **kwargs)
 
 
 def _obj_formatter(view, context, model,
                    value=None, model_name=None, title=None, fields=None,
-                   detail_fields=None, detail_field=None):
+                   detail_fields=None, detail_field=None, *args, **kwargs):
     str_markup = _obj_formatter_str(view, context, model, value, model_name,
-                                    title, fields, detail_fields, detail_field)
+                                    title, fields, detail_fields, detail_field,
+                                    *args, **kwargs)
     return Markup(str_markup)
 
 
-def _user_obj_formatter(view, context, model, value, *args, **kwargs):
+def user_formatter(view, context, model, name):
+    value = getattr(model, name, None)
+    if value is None:
+        return ''
+    label = view.column_labels.get('user', 'user')
     fields = getattr(view, 'line_fields')
     return _obj_formatter(view, context, model,
                           value=value, model_name='user',
-                          title=value.username, fields=fields,
-                          *args, **kwargs)
-
-
-def user_formatter(view, context, model, name):
-    try:
-        s = model.user
-    except Exception:
-        s = model
-
-    if s is not None:
-        return _user_obj_formatter(view, context, model, value=s)
-    return ''
-
+                          title=value.username, table_header=label,
+                          fields=fields)
 
 ####################################################################
 # ModelView
+
 
 from flask_admin.contrib.sqla import ModelView as BaseModelView
 
