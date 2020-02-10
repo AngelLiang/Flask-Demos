@@ -18,9 +18,10 @@ def initdata(user_count=50, post_count=1000, tag_count=20, comment_count=800, al
 
     users = []
     for i in range(user_count):
+        profile = fake.simple_profile()
         user = User(
-            name=fake.name(),
-            username=fake.profile()['username'],
+            name=profile['name'],
+            username=profile['username'],
             created_at=fake.past_datetime(),
         )
         users.append(user)
