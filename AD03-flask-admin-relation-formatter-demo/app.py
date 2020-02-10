@@ -113,15 +113,7 @@ def _obj_formatter(view, context, model,
 
 
 def _user_obj_formatter(view, context, model, value, *args, **kwargs):
-    fields = [
-        {
-            'label': 'name', 'field': 'name'
-        },
-        {
-            'label': 'username', 'field': 'username'
-        }
-    ]
-
+    fields = getattr(view, 'line_fields')
     return _obj_formatter(view, context, model,
                           value=value, model_name='user',
                           title=value.username, fields=fields,
