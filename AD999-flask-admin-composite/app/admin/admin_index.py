@@ -39,7 +39,7 @@ class AdminIndexView(AlertsMixin, _AdminIndexView):
     @expose('/')
     def index(self):
         if not current_user.is_authenticated:
-            return redirect(url_for('.login_view'))
+            return redirect(url_for('.login_view', next=request.url))
 
         user_total = User.query.count()
         post_total = Post.query.count()
@@ -80,7 +80,8 @@ class AdminIndexView(AlertsMixin, _AdminIndexView):
             login_user(user)
 
         if current_user.is_authenticated:
-            return redirect(url_for('.index'))
+            redirect_url = request.args.get('next') or url_for('admin.index')
+            return redirect(redirect_url)
 
         link = '<p>新用户吗？<a href="' + \
             url_for('.register_view') + '">请注册</a>。</p>'
@@ -103,7 +104,9 @@ class AdminIndexView(AlertsMixin, _AdminIndexView):
             db.session.commit()
 
             login_user(user)
-            return redirect(url_for('.index'))
+
+            redirect_url = request.args.get('next') or url_for('admin.index')
+            return redirect(redirect_url)
 
         href = url_for('.login_view')
         link = f'<p>已有帐号？请点击<a href="{href}">登录</a>。</p>'
