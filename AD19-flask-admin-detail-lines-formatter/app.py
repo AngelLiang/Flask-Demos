@@ -1,4 +1,5 @@
 import time
+import datetime as dt
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
@@ -18,7 +19,7 @@ admin.init_app(app)
 ####################################################################
 # models
 
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey
+from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -54,6 +55,9 @@ class Order(db.Model):
     supplier = relationship('Supplier')
 
     order_number = Column(String(32))
+    order_at = Column(DateTime, default=dt.datetime.now)
+
+    status = Column(Integer, default=0, nullable=False)
 
 
 class OrderLine(db.Model):
@@ -78,9 +82,6 @@ class OrderLine(db.Model):
     def total_amount(self):
         return self.unit_price * self.quantity
 
-    # @total_amount.expression
-    # def total_amount(self):
-    #     return select([self.unit_price * self.quantity]).label('line_total_amount')
 
 ####################################################################
 # formatter
@@ -216,15 +217,22 @@ class ModelView(BaseModelView):
 
 class OrderModelView(ModelView):
     can_view_details = True
-    column_details_list = ('order_number', 'supplier', 'lines',)
+    column_details_list = ('order_number', 'order_at',
+                           'supplier', 'status', 'lines',)
 
-    form_columns = ('order_number', 'supplier', 'lines',)
-    form_edit_rules = ('order_number', 'lines',)
-    form_create_rules = ('supplier',)
+    form_columns = ('order_number', 'supplier', 'order_at', 'status', 'lines',)
+    form_edit_rules = ('order_number', 'supplier', 'lines', 'status')
+    form_create_rules = ('supplier', 'order_at', 'status')
 
     column_formatters = {
         'lines': line_formatter
     }
+
+    form_choices = {
+        'status': [
+            ('0', '草稿'),
+            ('1', '已发出'),
+        ]}
 
     inline_models = (OrderLineInlineAdmin(OrderLine), )
 
@@ -245,6 +253,12 @@ class OrderModelView(ModelView):
             }
         ]
     }
+
+    def get_edit_form(self):
+        Form = super().get_edit_form()
+        Form.order_number = DisabledStringField()
+        Form.supplier = DisabledStringField()
+        return Form
 
 
 admin.add_view(OrderModelView(Order, db.session))
