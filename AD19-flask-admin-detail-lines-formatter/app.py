@@ -66,8 +66,7 @@ class OrderLine(db.Model):
     id = Column(Integer, primary_key=True)
     unit_price = Column(Numeric(
         precision=8, scale=2, decimal_return_scale=2), nullable=False)
-    quantity = Column(Numeric(
-        precision=8, scale=2, decimal_return_scale=2), nullable=False)
+    quantity = Column(Integer, default=0)
 
     # 订单
     order_id = Column(Integer, ForeignKey('order.id'), nullable=False)
