@@ -1,0 +1,99 @@
+{% extends 'admin/master.html' %}
+{% import 'admin/lib.html' as lib with context %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='master_detail/master_detail.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    {% block navlinks %}
+        <ul class="nav nav-tabs">
+            <li>
+                <a href="{{ return_url }}">{{ _gettext('List') }}</a>
+            </li>
+            {%- if admin_view.can_create -%}
+                <li>
+                    <a href="{{ get_url('.create_view', url=return_url) }}">{{ _gettext('Create') }}</a>
+                </li>
+            {%- endif -%}
+            {%- if admin_view.can_edit -%}
+                {% if model.can_edit %}
+                    <li>
+                        <a href="{{ get_url('.edit_view', id=request.args.get('id'), url=return_url) }}">{{ _gettext('Edit') }}</a>
+                    </li>
+                {% endif %}
+            {%- endif -%}
+            <li class="active">
+                <a href="javascript:void(0)">{{ _gettext('Details') }}</a>
+            </li>
+        </ul>
+    {% endblock %}
+
+    {% block details_search %}
+        <div class="input-group fa_filter_container col-lg-6">
+            <span class="input-group-addon">{{ _gettext('Filter') }}</span>
+            <input id="fa_filter" type="text" class="form-control">
+        </div>
+    {% endblock %}
+
+    {% block details_table %}
+        {% set has_detail_field = has_detail_field(admin_view) %}
+        {% if not has_detail_field %}
+            <table class="table table-hover table-bordered searchable">
+                {% for c, name in admin_view.get_details_columns() %}
+                    {% if not is_list_field(model, c) %}
+                        <tr>
+                            <td>
+                                <b>{{ name }}</b>
+                            </td>
+                            <td>
+                                {{ get_value(model, c) }}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+        {% else %}
+            <div>
+                {# 左侧栏 #}
+                <div class="col-md-4 searchable detail-header-field-panel" id="header-field-panel">
+                    <div class="panel panel-default">
+                        <div class="panel-heading text-center">
+                            <b>{{ _gettext('基本信息') }}</b>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table table-hover searchable table-striped">
+                                {% for c, name in admin_view.get_details_columns() %}
+                                    {% if not is_list_field(model, c) %}
+                                        <tr id="detail-{{ c }}">
+                                            <td><b>{{ name }}</b></td>
+                                            <td>{{ get_value(model, c) }}</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </table>
+                            <div class="sidebar-collapse-button" id="header-field-panel-collapse-icon"></div>
+                            <div class="inline-collapse-button" id="inline-field-panel-collapse-icon"></div>
+                        </div>
+                    </div>
+                </div>
+                {# 右侧行信息 #}
+                <div class="header-expand-button" id="header-field-panel-expand-icon"></div>
+                <div class="col-md-8 searchable" id="inline-field-panel">
+                    {% for c, name in admin_view.get_details_columns() %}
+                        {% if is_list_field(model, c) %}
+                            {{ get_value(model, c) | safe }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="inline-expand-button" id="inline-field-panel-expand-icon"></div>
+            </div>
+        {% endif %}
+    {% endblock %}
+{% endblock %}
+
+{% block tail %}
+    {{ super() }}
+    <script src="{{ admin_static.url(filename='admin/js/details_filter.js', v='1.0.0') }}"></script>
+    <script src="{{ url_for('static', filename='master_detail/master_detail.js') }}"></script>
+{% endblock %}

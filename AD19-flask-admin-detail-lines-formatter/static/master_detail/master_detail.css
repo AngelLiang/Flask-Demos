@@ -1,0 +1,138 @@
+#inline-field-panel {
+  padding-left: 1px;
+}
+
+.expand-inline-field-panel {
+  width: 100%;
+}
+
+.sidebar-collapse-button,
+.inline-collapse-button,
+.header-expand-button,
+.inline-expand-button {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  bottom: 0;
+}
+
+.sidebar-collapse-button:after,
+.inline-collapse-button:after,
+.header-expand-button:after,
+.inline-expand-button:after {
+  font-size: 20px;
+  display: block;
+  position: fixed;
+  bottom: 0;
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
+  cursor: pointer;
+  text-align: center;
+  line-height: 43px;
+  opacity: 0.85;
+  -webkit-box-shadow: -1px -1px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: -1px -1px 4px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+}
+
+.sidebar-collapse-button {
+  right: 15px;
+}
+
+.sidebar-collapse-button:after {
+  content: '«';
+  padding-left: 7px;
+  border-top-left-radius: 100%;
+}
+
+.inline-collapse-button {
+  right: -25px;
+  width: 40px;
+}
+
+.inline-collapse-button:after {
+  content: '»';
+  padding-right: 7px;
+  border-top-right-radius: 100%;
+}
+
+.header-expand-button {
+  left: 0;
+  display: none;
+}
+
+.header-expand-button:after {
+  content: '»';
+  padding-right: 7px;
+  border-top-right-radius: 100%;
+}
+
+.inline-expand-button {
+  right: 30px;
+  display: none;
+}
+
+.inline-expand-button:after {
+  content: '«';
+  padding-left: 7px;
+  border-top-left-radius: 100%;
+}
+
+#header-field-panel .control-label {
+  text-align: left;
+}
+
+#header-field-panel .panel,
+#header-field-panel .header-field-table-container {
+  margin-bottom: -2999px;
+  padding-bottom: 2999px;
+  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.detail-header-field-panel .panel-body {
+  padding: 0;
+  border: 0;
+}
+
+.fresh > td.line-number:after {
+  content: '*';
+  color: red;
+  padding-left: 2px;
+  vertical-align: inherit;
+  font-size: 18px;
+}
+
+.fa_filter_container {
+  width: 100%;
+  margin: auto;
+  padding: 10px;
+}
+
+.object-ref-header-table tr:last-child {
+  background-color: #f9f9f9 !important;
+  border-bottom: 1px solid #ddd !important;
+}
+
+.object-ref-header-table tr td:nth-child(1) {
+  text-align: right;
+}
+
+.object-ref-header-table th,
+.object-ref-line-table th {
+  text-align: center;
+}
+
+.object-ref-link {
+  float: right;
+}
+
+#header-field-panel {
+  padding-left: 0;
+}
+
+#inline-field-panel {
+  padding-right: 0;
+}

@@ -1,0 +1,62 @@
+{% macro render_inline_header_field(form, field) %}
+  <th>
+    {{ field.label.text }}
+    {% if h.is_required_form_field(field) %}
+      <strong style="color: red">&#42;</strong>
+    {%- else -%}
+      &nbsp;
+    {%- endif %}
+  </th>
+{% endmacro %}
+
+{% macro render_inline_table_header(template) %}
+  {# Checkbox #}
+  <tr>
+    <th class="delete-operation">删除?</th>
+    {# Line number #}
+    <th class="line-number">行号</th>
+    {% for f in template.form if f.widget.input_type != 'hidden' %}
+      {{ render_inline_header_field(form, f) }}
+    {% endfor %}
+  </tr>
+{% endmacro %}
+
+{% macro render_inline_fields(field, template, render, check=None) %}
+  <div class="inline-field-template-{{ field.id }} hide">
+    {% filter forceescape %}
+      <tr class="inline-field">
+        <td class="delete-operation">
+          <a href="javascript:void(0)" class="inline-remove-field"><span class="fa fa-times glyphicon glyphicon-remove"></span></a>
+        </td>
+        <td class="line-number">
+          <small>-</small>
+        </td>
+        {{ render(template) }}
+      </tr>
+    {% endfilter %}
+  </div>
+  <table class="table table-striped table-hover inline-field table-responsive table-bordered" id="{{ field.id }}">
+    {{ render_inline_table_header(template) }}
+    {# existing inline form fields #}
+    {% for subfield in field %}
+      <tr class="inline-field" id="lines-{{ field.id }}">
+        <td class="delete-operation">
+          {%- if not check or check(subfield) %}
+            {% if subfield.get_pk and subfield.get_pk() %}
+              <input type="checkbox" name="del-{{ subfield.id }}" id="del-{{ subfield.id }}"/>
+            {% else %}
+              <a href="javascript:void(0)" class="inline-remove-field"><i class="fa fa-times glyphicon glyphicon-remove"></i></a>
+            {% endif %}
+          {%- endif -%}
+        </td>
+        <td class="line-number">{{ loop.index }}</td>
+        {{ render(subfield) }}
+      </tr>
+    {% endfor %}
+    {# template for new inline form fields #}
+  </table>
+  <div class="pull-right full-width">
+    <a id="{{ field.id }}-button" href="javascript:void(0)" class="btn btn-default full-width btn-lg"
+       onclick="addInlineField('{{ field.id }}');">{{ _gettext('Add') }}{{ field.label.text }}</a>
+  </div>
+{% endmacro %}

@@ -1,0 +1,11 @@
+{% if detail_labels|length > 0 %}
+    <table class="object-ref-line-table table table-striped table-bordered table-hover">
+    <tr><th colspan="{{ detail_labels|length }}">行信息</th></tr>
+    <tr>
+        {% for label in detail_labels %}<th>{{ label }}</th>{% endfor %}
+    </tr>
+        {% for line in detail_lines %}
+            <tr>{% for field in line %}<td>{{ field or ' ' }}</td>{% endfor %}</tr>
+        {% endfor %}
+    </table>
+{% endif %}
