@@ -12,7 +12,7 @@
 {% macro render_inline_table_header(template) %}
   {# Checkbox #}
   <tr>
-    <th class="delete-operation">删除?</th>
+    <th class="delete-operation">删除？</th>
     {# Line number #}
     <th class="line-number">行号</th>
     {% for f in template.form if f.widget.input_type != 'hidden' %}

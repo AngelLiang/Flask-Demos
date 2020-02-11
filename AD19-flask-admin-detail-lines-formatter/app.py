@@ -22,6 +22,17 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 
 
+class Supplier(db.Model):
+    """供应商"""
+    __tablename__ = 'supplier'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(80))
+
+    def __repr__(self):
+        return self.name
+
+
 class Product(db.Model):
     """产品"""
     __tablename__ = 'product'
@@ -36,6 +47,11 @@ class Order(db.Model):
     """订购单"""
     __tablename__ = 'order'
     id = Column(Integer, primary_key=True)
+
+    # 供应商
+    supplier_id = Column(Integer, ForeignKey('supplier.id'), nullable=False)
+    supplier = relationship('Supplier')
+
     order_number = Column(String(32))
 
 
@@ -48,6 +64,7 @@ class OrderLine(db.Model):
     quantity = Column(Numeric(
         precision=8, scale=2, decimal_return_scale=2), nullable=False)
 
+    # 订单
     order_id = Column(Integer, ForeignKey('order.id'), nullable=False)
     order = relationship('Order', backref=backref(
         'lines', cascade='all, delete-orphan'))
@@ -55,6 +72,14 @@ class OrderLine(db.Model):
     # 产品
     product_id = Column(Integer, ForeignKey('product.id'), nullable=False)
     product = relationship('Product')
+
+    @hybrid_property
+    def total_amount(self):
+        return self.unit_price * self.quantity
+
+    # @total_amount.expression
+    # def total_amount(self):
+    #     return select([self.unit_price * self.quantity]).label('line_total_amount')
 
 ####################################################################
 # formatter
@@ -105,8 +130,8 @@ def is_list_field(model, field):
     """
     Whether a field is a list field
     :param model:  Model of the field
-    :param field: name of the field to check 
-    :return: True if attribute with the name is a list field, False otherwise. 
+    :param field: name of the field to check
+    :return: True if attribute with the name is a list field, False otherwise.
     """
     import sqlalchemy
     return (type(getattr(model, field)) == sqlalchemy.orm.collections.InstrumentedList)\
@@ -116,9 +141,9 @@ def is_list_field(model, field):
 def has_detail_field(form_or_view):
     """
     Whether a form or view has a inline field
-    This is used in template to decide how to display the form 
+    This is used in template to decide how to display the form
     :param form_or_view: the admin form or admin view to check
-    :return: True if has detail field, otherwise false 
+    :return: True if has detail field, otherwise false
     """
     if hasattr(form_or_view, 'line_fields'):
         line_fields = getattr(form_or_view, 'line_fields', None)
@@ -136,8 +161,8 @@ def has_detail_field(form_or_view):
 def is_inline_field(field):
     """
     Whether a field in create or edit form is an inline field
-    :param field: THe field to check 
-    :return: True if field is of instance InlineModelFormList, otherwise false 
+    :param field: THe field to check
+    :return: True if field is of instance InlineModelFormList, otherwise false
     """
     from flask_admin.contrib.sqla.form import InlineModelFormList
     r = isinstance(field, InlineModelFormList)
@@ -149,6 +174,29 @@ def init_jinja2_functions(app):
     app.add_template_global(is_inline_field, 'is_inline_field')
     app.add_template_global(is_list_field, 'is_list_field')
 
+###################################################################
+
+
+from wtforms import StringField
+from flask_admin.model import InlineFormAdmin
+
+
+class DisabledStringField(StringField):
+    def __call__(self, **kwargs):
+        kwargs['disabled'] = True
+        return super(DisabledStringField, self).__call__(**kwargs)
+
+
+class OrderLineInlineAdmin(InlineFormAdmin):
+    form_args = dict(
+        product=dict(label='Product'),
+        unit_price=dict(label='Unit Price'),
+        quantity=dict(label='Quantity'),
+    )
+
+    def postprocess_form(self, form):
+        # form.total_amount = DisabledStringField(label='Total Amount')
+        return form
 
 ####################################################################
 # views
@@ -167,11 +215,17 @@ class ModelView(BaseModelView):
 
 class OrderModelView(ModelView):
     can_view_details = True
-    column_details_list = ('order_number', 'lines',)
+    column_details_list = ('order_number', 'supplier', 'lines',)
+
+    form_columns = ('order_number', 'supplier', 'lines',)
+    form_edit_rules = ('order_number', 'lines',)
+    form_create_rules = ('supplier',)
 
     column_formatters = {
         'lines': line_formatter
     }
+
+    inline_models = (OrderLineInlineAdmin(OrderLine), )
 
     # for object_ref
     line_fields = {
@@ -195,13 +249,20 @@ class OrderModelView(ModelView):
 admin.add_view(OrderModelView(Order, db.session))
 
 
-def initdb(product_count=100, order_count=50, order_line_count=500):
+def initdb(supplier_count=10, product_count=100, order_count=50, order_line_count=500):
     import random
     from faker import Faker
     fake = Faker('zh_CN')
 
     db.drop_all()
     db.create_all()
+
+    suppliers = []
+    for i in range(supplier_count):
+        supplier = Supplier(name=fake.word())
+        suppliers.append(supplier)
+    db.session.add_all(suppliers)
+    db.session.commit()
 
     products = []
     for i in range(product_count):
@@ -213,6 +274,7 @@ def initdb(product_count=100, order_count=50, order_line_count=500):
     orders = []
     for i in range(order_count):
         order = Order(
+            supplier_id=random.randrange(1, Supplier.query.count()),
             order_number=f'{int(time.time())}{i}'
         )
         orders.append(order)
@@ -243,6 +305,7 @@ def index():
 
 
 init_jinja2_functions(app)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

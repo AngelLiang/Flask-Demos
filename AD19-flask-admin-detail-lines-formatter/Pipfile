@@ -11,6 +11,7 @@ flask-admin = "*"
 flask-sqlalchemy = "*"
 python-dotenv = "*"
 faker = "*"
+wtforms = "*"
 
 [requires]
 python_version = "3.6"

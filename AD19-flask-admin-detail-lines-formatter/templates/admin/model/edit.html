@@ -3,8 +3,8 @@
 {% from 'admin/lib.html' import extra with context %} {# backward compatible #}
 
 {% block head %}
-  {{ super() }}
   {{ lib.form_css() }}
+  <link href="{{ url_for('static', filename='master_detail/master_detail.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
@@ -37,6 +37,5 @@
 {% endblock %}
 
 {% block tail %}
-  {{ super() }}
   {{ lib.form_js() }}
 {% endblock %}

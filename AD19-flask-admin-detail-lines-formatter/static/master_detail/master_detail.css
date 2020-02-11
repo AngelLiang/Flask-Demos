@@ -136,3 +136,11 @@
 #inline-field-panel {
   padding-right: 0;
 }
+
+.submit-row {
+  margin-top: 2em;
+}
+
+.full-width {
+  width: 100%;
+}
