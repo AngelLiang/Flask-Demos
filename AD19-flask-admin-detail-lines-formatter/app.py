@@ -9,6 +9,7 @@ admin = Admin(template_mode='bootstrap3')
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '123456790'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['FLASK_ADMIN_FLUID_LAYOUT'] = True
 
 db.init_app(app)
 admin.init_app(app)

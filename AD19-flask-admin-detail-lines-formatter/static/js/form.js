@@ -62,4 +62,3 @@ function addInlineField(parent_id) {
     // Apply styles
     faForm.applyGlobalStyles($template);
 }
-

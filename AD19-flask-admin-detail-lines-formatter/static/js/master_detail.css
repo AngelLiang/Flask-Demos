@@ -137,10 +137,50 @@
   padding-right: 0;
 }
 
+.inline-field td input[id$='discount'],
+.inline-field td input[id$='amount'],
+.inline-field td input[id$='quantity'],
+.inline-field td input[id$='price'] {
+  max-width: 90px;
+  text-align: end;
+  width: 100% !important;
+}
+
+.inline-field td div[id$='product'],
+.inline-field td input[id$='product'] {
+  /* max-width: 400px; */
+  width: 100% !important;
+}
+
+.inline-field td input,
+.inline-filed td div {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.inline-field tr th {
+  text-align: center;
+}
+
+.inline-field .line-number {
+  width: 50px;
+  text-align: center;
+}
+
+.inline-field .delete-operation {
+  width: 60px;
+  text-align: center;
+}
+
+.inline-field td.delete-operation,
+.inline-field td.line-number {
+  padding-top: 15px;
+}
+
 .submit-row {
   margin-top: 2em;
 }
-
 .full-width {
   width: 100%;
 }
