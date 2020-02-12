@@ -2,7 +2,8 @@
 {% import 'admin/lib.html' as lib with context %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/master_detail.css') }}" rel="stylesheet">
+    {{ super() }}
+    {{ lib.form_css() }}
 {% endblock %}
 
 {% block body %}
@@ -93,7 +94,6 @@
 {% endblock %}
 
 {% block tail %}
-    {{ super() }}
-    <script src="{{ admin_static.url(filename='admin/js/details_filter.js', v='1.0.0') }}"></script>
-    <script src="{{ url_for('static', filename='master_detail/master_detail.js') }}"></script>
+  {{ super() }}
+  {{ lib.form_js() }}
 {% endblock %}

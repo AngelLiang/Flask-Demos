@@ -347,6 +347,7 @@
   {% if editable_columns %}
   <link href="{{ admin_static.url(filename='vendor/x-editable/css/bootstrap3-editable.css', v='1.5.1') }}" rel="stylesheet">
   {% endif %}
+  <link href="{{ url_for('static', filename='css/master_detail.css') }}" rel="stylesheet">
 {% endmacro %}
 
 {% macro form_js() %}
