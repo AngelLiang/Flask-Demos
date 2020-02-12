@@ -96,4 +96,5 @@
 {% block tail %}
   {{ super() }}
   {{ lib.form_js() }}
+  <script src="{{ admin_static.url(filename='admin/js/details_filter.js', v='1.0.0') }}"></script>
 {% endblock %}
