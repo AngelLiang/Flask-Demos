@@ -59,6 +59,14 @@ class Order(db.Model):
 
     status = Column(Integer, default=0, nullable=False)
 
+    @property
+    def can_edit(self):
+        return self.status == 0
+
+    @property
+    def can_delete(self):
+        return self.status == 0
+
 
 class OrderLine(db.Model):
     __tablename__ = 'order_line'
@@ -209,9 +217,13 @@ from flask_admin.contrib.sqla import ModelView as BaseModelView
 class ModelView(BaseModelView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        setattr(self.model, 'can_edit', self.can_edit)
-        setattr(self.model, 'can_delete', self.can_delete)
-        setattr(self.model, 'can_view_details', self.can_view_details)
+
+        if not hasattr(self.model, 'can_edit'):
+            setattr(self.model, 'can_edit', self.can_edit)
+        if not hasattr(self.model, 'can_delete'):
+            setattr(self.model, 'can_delete', self.can_delete)
+        if not hasattr(self.model, 'can_view_details'):
+            setattr(self.model, 'can_view_details', self.can_view_details)
 
 
 class OrderModelView(ModelView):
@@ -289,7 +301,8 @@ def initdb(supplier_count=10, product_count=100, order_count=50, order_line_coun
     for i in range(order_count):
         order = Order(
             supplier_id=random.randrange(1, Supplier.query.count()),
-            order_number=f'{int(time.time())}{i}'
+            order_number=f'{int(time.time())}{i}',
+            status=random.randint(0, 1),
         )
         orders.append(order)
     db.session.add_all(orders)
