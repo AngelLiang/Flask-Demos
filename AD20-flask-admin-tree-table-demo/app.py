@@ -36,6 +36,9 @@ class Tree(db.Model, BaseNestedSets):
     def __str__(self):
         return '{}'.format(self.name)
 
+    def path_from_root(self):
+        from sqlalchemy import asc
+        return self.path_to_root(order=asc).all()
 
 ####################################################################
 # admin view
