@@ -1,8 +1,9 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin, expose
-from flask_admin.contrib.sqla import ModelView
-from flask_admin.model.template import EndpointLinkRowAction, LinkRowAction
+from flask_admin.contrib.sqla import ModelView as _ModelView
+from flask_admin.model.template import LinkRowAction
+from flask_admin.model.template import EndpointLinkRowAction as _EndpointLinkRowAction
 
 db = SQLAlchemy()
 admin = Admin(template_mode='bootstrap3')
@@ -14,6 +15,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 admin.init_app(app)
 
+####################################################################
+# model
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,26 +28,85 @@ class User(db.Model):
     def set_password(self, password):
         self.password_hash = password
 
+    @property
+    def can_view_details(self):
+        return self.id != 1
+
+    def can_envelope(self, row_id):
+        user = User.query.first()
+        return str(user.id) != row_id
+
+
+####################################################################
+# row action
+
+
+class EndpointLinkRowAction(_EndpointLinkRowAction):
+    template_name = 'row_actions.link_row'
+
+    def render(self, context, row_id, row):
+        m = self._resolve_symbol(context, self.template_name)
+        get_url = self._resolve_symbol(context, 'get_url')
+
+        kwargs = dict(self.url_args) if self.url_args else {}
+        kwargs[self.id_arg] = row_id
+
+        url = get_url(self.endpoint, **kwargs)
+
+        return m(self, url, row_id=row_id, row=row)
+
+    def can_show(self, row_id, row):
+        return True
+
+
+class EnvelopeEndpointLinkRowAction(EndpointLinkRowAction):
+
+    def can_show(self, row_id, row):
+        return row.can_envelope(row_id)
+
+####################################################################
+# view
+
+
+class ModelView(_ModelView):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not hasattr(self.model, 'can_edit'):
+            setattr(self.model, 'can_edit', self.can_edit)
+        if not hasattr(self.model, 'can_delete'):
+            setattr(self.model, 'can_delete', self.can_delete)
+        if not hasattr(self.model, 'can_view_details'):
+            setattr(self.model, 'can_view_details', self.can_view_details)
+
 
 class UserModelView(ModelView):
     column_list = ('id', 'name', 'username')
     column_default_sort = 'id'
 
+    can_view_details = True
     can_delete = False
 
     # 给 flask-admin 每个 row 添加额外的 action
     column_extra_row_actions = [
-        EndpointLinkRowAction('glyphicon glyphicon-envelope', '.approve'),
+        EnvelopeEndpointLinkRowAction(
+            'glyphicon glyphicon-envelope', '.envelope'),
+        # EndpointLinkRowAction('glyphicon glyphicon-envelope', '.envelope'),
         LinkRowAction('glyphicon glyphicon-off', ''),
     ]
 
-    @expose('/user/approve')
-    def approve(self):
+    @expose('/user/envelope')
+    def envelope(self):
         # TODO:
+        row_id = request.args.get('id')
+        user = User.query.get(row_id)
+        flash(f'envelope to {user.name}')
         return redirect(url_for('.index_view'))
 
 
 admin.add_view(UserModelView(User, db.session))
+
+####################################################################
+# initdb
 
 
 def initdb(user_count=50):
