@@ -228,10 +228,13 @@ class ModelView(BaseModelView):
 
 class OrderModelView(ModelView):
     can_view_details = True
+    # 需要有 lines 才会显示明细行
     column_details_list = ('order_number', 'order_at',
                            'supplier', 'status', 'lines',)
 
+    # 需要有 lines 才会显示明细行
     form_columns = ('order_number', 'supplier', 'order_at', 'status', 'lines',)
+    # 需要有 lines 才会显示明细行
     form_edit_rules = ('order_number', 'supplier', 'lines', 'status')
     form_create_rules = ('supplier', 'order_at', 'status')
 
