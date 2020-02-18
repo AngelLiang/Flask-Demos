@@ -1,0 +1,17 @@
+{% extends 'admin/base.html' %}
+
+{% block access_control %}
+    {% if current_user.is_authenticated %}
+        <div class="btn-group pull-right">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-user fa-fw"></i> {{ current_user.username }} <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu dropdown-user">
+                <li><a href="{{ url_for('profileview.profile_view') }}"><i class="fa fa-user fa-fw"></i>Profile</a></li>
+                <li><a href="#"><i class="fa fa-gear fa-fw"></i>Settings</a></li>
+                <li class="divider"></li>
+                <li><a href="{{ url_for('admin.logout_view') }}"><i class="fa fa-sign-out fa-fw"></i>Logout</a></li>
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
