@@ -1,62 +1,57 @@
 {% extends 'admin/model/list.html' %}
 {% import 'admin/model/layout.html' as model_layout with context %}
 
+
 {% block body %}
-    <div>
-        {# 左侧栏 #}
-        {% block sider %}
-        <div class="col-md-2" id="left-sider-panel">
-            <div class="panel panel-default"style="width 100%;height: 100%">
-                <div class="panel-heading">
-                    {{ admin_view.get_sider_title() }}
-                </div>
-                <div class="panel-body">
-                    <table class="sider">
-                        <tbody>
-                        {% for row in admin_view.get_sider_tree() %}
-                            <tr class="treegrid-{{ row.id }} {% if row.parent_id %} treegrid-parent-{{ row.parent_id }} {% endif %}">
-                                <td>
-                                <a type="button" href="{{ url_for('.index_view', flt2_2=row.name) }}">{{- row.name -}}</a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+    {% block model_menu_bar %}
+        {{ super() }}
+    {% endblock %}
+
+    {# 左侧栏 #}
+    {% block sider %}
+    <div class="col-md-2" id="sider-panel" style="margin-top: 12px;">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {{ admin_view.get_sider_title() }}
             </div>
-            
+            <div class="panel-body">
+                <table class="sider">
+                    <tbody>
+                    {% for row in admin_view.get_sider_tree() %}
+                        <tr class="treegrid-{{ row.id }} {% if row.parent_id %} treegrid-parent-{{ row.parent_id }} {% endif %}">
+                            <td>
+                            <a type="button" href="{{ url_for('.index_view', flt2_2=row.name) }}">{{- row.name -}}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
+    </div>
+    {% endblock %}
+
+    <div class="col-md-10" style="margin-top: 12px;">
+        {# 过滤表单 #}
+        {% if filters %}
+            {{ model_layout.filter_form() }}
+            <div class="clearfix"></div>
+        {% endif %}
+
+        {% block model_list_table %}
+            {{ super() }}
         {% endblock %}
-
-        {# 主要模板 #}
-        {% block main %}
-            <div class="col-md-10">
-                {% block model_menu_bar %}
-                    {{ super() }}
-                {% endblock %}
-                {# 过滤表单 #}
-                {% if filters %}
-                    {{ model_layout.filter_form() }}
-                    <div class="clearfix"></div>
-                {% endif %}
-
-                {% block model_list_table %}
-                    {{ super() }}
-                {% endblock %}
-
-                {# action form #}
-                {% block actions %}
-                    {{ super() }}
-                {% endblock %}
-
-                {# modal #}
-                {%- if admin_view.edit_modal or admin_view.create_modal or admin_view.details_modal -%}
-                    {{ super() }}
-                {%- endif -%}
-
-            </div>
-        {% endblock %}
-
     </div>
 
+    {# action form #}
+    {% block actions %}
+        {{ super() }}
+    {% endblock %}
+
+    {# modal #}
+    {%- if admin_view.edit_modal or admin_view.create_modal or admin_view.details_modal -%}
+        {{ super() }}
+    {%- endif -%}
+
 {% endblock %}
+
