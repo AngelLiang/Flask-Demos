@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-lg-2 col-md-2">
             {# <div class="nav nav-pills flex-column" role="tablist" aria-orientation="vertical"> #}
             <div class="nav nav-pills nav-stacked">
                 {% for item in admin_view.get_sider_items() %}
@@ -12,7 +12,7 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="col-md-9">
+        <div class="ol-lg-10  col-md-10">
             {% block main %}{% endblock %}
         </div>
     </div>
