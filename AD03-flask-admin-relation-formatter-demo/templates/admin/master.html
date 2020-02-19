@@ -1,12 +1,12 @@
 {% import 'admin/layout.html' as layout with context -%}
 {% extends 'admin/base.html' %}
 
+{% block head %}
+  <link href="{{ url_for('static', filename='object_ref/object_ref.css') }}" rel="stylesheet">
+{% endblock %}
 
 {% block tail %}
-  {{ super() }}
-
   {# Bootbox.js 是一个小型的JavaScript库，基于Bootstrap模态框开发，用于创建可编程的对话框。 #}
   <script src="{{ url_for('static', filename='bootbox/bootbox.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='admin/js/object_ref.js') }}"></script>
-
+  <script src="{{ url_for('static', filename='object_ref/object_ref.js') }}"></script>
 {% endblock %}

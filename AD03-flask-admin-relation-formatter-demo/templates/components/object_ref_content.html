@@ -1,0 +1,17 @@
+<table class="object-ref-header-table table table-responsive table-striped table-condensed table-condensed">
+    <tr><th colspan="2">{{ table_header or "基本信息" }}</th></tr>
+     {% for f in header %}
+         <tr><td>{{ f.label }}</td><td>{{ f.value or ' ' }}</td></tr>
+     {% endfor %}
+</table>
+ {% if detail_labels|length > 0 %}
+     <table class="object-ref-line-table table table-striped table-bordered table-hover table-condensed">
+     <tr><th colspan="{{ detail_labels|length }}">行信息</th></tr>
+     <tr>
+         {% for label in detail_labels %}<th>{{ label }}</th>{% endfor %}
+     </tr>
+         {% for line in detail_lines %}
+             <tr>{% for field in line %}<td>{{ field or ' ' }}</td>{% endfor %}</tr>
+         {% endfor %}
+     </table>
+ {% endif %}
