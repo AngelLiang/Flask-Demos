@@ -33,6 +33,8 @@ class UserModelView(ModelView):
 
     can_delete = False
 
+    action_disallowed_list = ('forbidden',)
+
     @action('approve', 'Approve', 'Are you sure you want to approve selected users?')
     def action_approve(self, ids):
         try:
@@ -52,6 +54,10 @@ class UserModelView(ModelView):
                 raise
 
             flash(gettext('Failed to approve users. %(error)s', error=str(ex)), 'error')
+
+    @action('forbidden', 'Forbidden', 'Are you sure you want to forbidden selected users?')
+    def action_forbidden(self, ids):
+        flash(f'{len(ids)} users forbidden')
 
 
 admin.add_view(UserModelView(User, db.session))
