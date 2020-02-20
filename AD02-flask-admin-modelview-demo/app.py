@@ -48,12 +48,14 @@ class Tag(db.Model):
     name = db.Column(db.Unicode(64))
 
     def __str__(self):
-        return "{}".format(self.name)
+        return f'{self.name}'
 
 
 class UserModelView(ModelView):
+    can_delete = False
     column_list = ('id', 'name', 'username')
     column_default_sort = 'id'
+    column_filters = ('name', 'username',)
 
     can_export = True
     export_max_rows = 1000
@@ -61,6 +63,7 @@ class UserModelView(ModelView):
 
 
 class PostModelView(ModelView):
+    can_view_details = True
     column_list = ('id', 'title', 'date', 'user')
     column_default_sort = ('date', True)
 
@@ -75,7 +78,7 @@ admin.add_view(UserModelView(User, db.session))
 admin.add_view(PostModelView(Post, db.session))
 
 
-def initdata(user_count=50, post_count=100):
+def initdb(user_count=50, post_count=100):
     import random
     from faker import Faker
 
@@ -107,14 +110,14 @@ def initdata(user_count=50, post_count=100):
     db.session.commit()
 
 
+@app.before_first_request
+def init_data():
+    initdb()
+
+
 @app.route('/')
 def index():
     return '<a href="/admin/">Click me to get to Admin!</a>'
-
-
-@app.before_first_request
-def init_data():
-    initdata()
 
 
 if __name__ == "__main__":
