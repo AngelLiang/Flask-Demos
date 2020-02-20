@@ -77,29 +77,14 @@ initdb()
 
 
 ####################################################################
-# filter
-from flask_admin.contrib.sqla.filters import BaseSQLAFilter
-from flask_admin.contrib.sqla.filters import FilterEqual
-from flask_admin.babel import lazy_gettext
-
-
-class FilterStatus(BaseSQLAFilter):
-    def __init__(self, model, label='label', name=None, options=None, data_type=None):
-        options = options or [
-            (s.id, getattr(s, label)) for s in model.query.all()
-        ]
-        self.name = name or 'Status'
-        super().__init__(model.id, self.name, options=options, data_type=data_type)
-
-    def apply(self, query, value, alias=None):
-        return query.filter(self.column == value)
-
-    def operation(self):
-        return lazy_gettext('equals')
-
-
-####################################################################
 # views
+
+from flask_admin.contrib.sqla.filters import (
+    EnumEqualFilter, EnumFilterNotEqual,
+    EnumFilterEmpty, EnumFilterInList,
+    EnumFilterNotInList
+)
+
 
 class PostModelView(ModelView):
     can_view_details = True
@@ -107,7 +92,21 @@ class PostModelView(ModelView):
     column_default_sort = ('date', True)
 
     column_filters = [
-        FilterStatus(PostStatus)
+        EnumEqualFilter(PostStatus.id, 'Status', options=[
+            (s.id, s.label) for s in PostStatus.query.all()
+        ]),
+        EnumFilterNotEqual(PostStatus.id, 'Status', options=[
+            (s.id, s.label) for s in PostStatus.query.all()
+        ]),
+        EnumFilterInList(PostStatus.id, 'Status', options=[
+            (s.id, s.label) for s in PostStatus.query.all()
+        ]),
+        EnumFilterNotInList(PostStatus.id, 'Status', options=[
+            (s.id, s.label) for s in PostStatus.query.all()
+        ]),
+        EnumFilterEmpty(PostStatus.id, 'Status', options=[
+            (s.id, s.label) for s in PostStatus.query.all()
+        ]),
     ]
 
 
