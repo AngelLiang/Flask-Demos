@@ -94,7 +94,8 @@ class PostModelView(ModelView):
         return redirect(url_for('.create_view', id=model.id))
 
     def create_form(self, obj=None):
-        model = self.get_model_form_request()
+        id = request.args.get('id')
+        model = self.get_one(id) if id else obj
         return super().create_form(obj=model)
 
 
