@@ -1,7 +1,8 @@
 from flask import Flask
 from flask import request, render_template, current_app
 from wtforms import ValidationError
-from flask_wtf.csrf import CSRFProtect, validate_csrf
+from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import validate_csrf
 
 ####################################################################
 # extensions
