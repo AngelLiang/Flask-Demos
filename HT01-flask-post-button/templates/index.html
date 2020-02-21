@@ -1,0 +1,28 @@
+{% macro messages() %}
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        {% for category, m in messages %}
+        {% if category %}
+            {% set mapping = {'message': 'info', 'error': 'danger'} %}
+            <div class="alert alert-{{ mapping.get(category, category) }} alert-dismissable">
+        {% else %}
+            <div class="alert alert-dismissable">
+        {% endif %}
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ m|safe }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+{% endmacro %}
+
+{{ messages() }}
+
+<form action="" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="action" value="action"/>
+    <button type="submit" class="btn btn-default" onclick="return confirm('Are you sure?')">
+        提交
+    </button>
+</form>
+
