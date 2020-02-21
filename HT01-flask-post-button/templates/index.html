@@ -18,7 +18,7 @@
 
 {{ messages() }}
 
-<form action="" method="POST">
+<form action="" method="POST" style="float:left;">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <input type="hidden" name="action" value="action"/>
     <button type="submit" class="btn btn-default" onclick="return confirm('Are you sure?')">
