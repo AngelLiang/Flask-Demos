@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request
+from flask import session
 from flask import current_app
 from flask import abort
 from flask import flash
@@ -47,7 +48,7 @@ class Post(db.Model):
 class PostModelView(ModelView):
     can_view_details = True
     column_list = ('id', 'title', 'date')
-    column_default_sort = ('date', True)
+    column_default_sort = ('id', True)
 
     details_template = 'admin/model/details_with_action.html'
 
@@ -91,12 +92,17 @@ class PostModelView(ModelView):
         """拷贝并创建"""
         self.validate_csrf()
         model = self.get_model_form_request()
-        return redirect(url_for('.create_view', id=model.id))
+        session['from_id'] = str(model.id)  # 1、使用 session 可以跨请求传参
+        return redirect(url_for('.create_view'))
 
     def create_form(self, obj=None):
-        id = request.args.get('id')
-        model = self.get_one(id) if id else obj
+        from_id = session.get('from_id')  # 2、从 session 获取传参
+        model = self.get_one(from_id) if from_id else obj
         return super().create_form(obj=model)
+
+    def after_model_change(self, form, model, is_created):
+        if is_created:
+            del session['from_id']  # 3、保存之后可以删除
 
 
 admin.add_view(PostModelView(Post, db.session))
