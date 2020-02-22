@@ -91,13 +91,18 @@ class PostModelView(ModelView):
     def copy_and_create(self):
         """拷贝并创建"""
         self.validate_csrf()
+        url = request.args.get('url')
         model = self.get_model_form_request()
-        session['from_id'] = str(model.id)  # 1、使用 session 可以跨请求传参
-        return redirect(url_for('.create_view'))
+        session['from_id'] = model.id  # 1、使用 session 可以跨请求传参
+        return redirect(url_for('.create_view', url=url))
+
+    def get_save_return_url(self, model, is_created):
+        """保存后返回详情页面"""
+        return self.get_url('.details_view', id=model.id)
 
     def create_form(self, obj=None):
         from_id = session.get('from_id')  # 2、从 session 获取传参
-        model = self.get_one(from_id) if from_id else obj
+        model = self.get_one(str(from_id)) if from_id else obj
         return super().create_form(obj=model)
 
     def after_model_change(self, form, model, is_created):
