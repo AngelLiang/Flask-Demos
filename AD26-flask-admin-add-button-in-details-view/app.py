@@ -41,7 +41,8 @@ class Post(db.Model):
     def from_object(cls, obj):
         return cls(
             title=obj.title,
-            text=obj.text
+            text=obj.text,
+            date=obj.date
         )
 
 
@@ -87,22 +88,25 @@ class PostModelView(ModelView):
             flash(e.args[0])
             abort(redirect(url_for('.details_view', id=model.id)))
 
-    @expose('/copy-and-create', methods=('GET', 'POST'))
-    def copy_and_create(self):
-        """复制并新建1"""
+    @expose('/copy-to-save', methods=('GET', 'POST'))
+    def copy_to_save(self):
+        """复制并保存（表单POST请求方式）"""
         self.validate_csrf()
-        url = request.args.get('url')
+        # url = request.args.get('url')
         model = self.get_model_form_request()
-        session['from_id'] = str(model.id)  # 1、使用 session 可以跨请求传参
-        return redirect(url_for('.create_view', url=url))
+        new_model = self.model.from_object(model)
+        db.session.add(new_model)
+        db.session.commit()
+        flash('复制并保存成功', 'success')
+        return redirect(url_for('.details_view', id=new_model.id))
 
     def get_save_return_url(self, model, is_created):
         """保存后返回详情页面"""
         return self.get_url('.details_view', id=model.id)
 
     def create_form(self, obj=None):
-        # 2、从 query_string 或 session 获取传参
-        # 如果是点击 复制并新建2 按钮，则直接进入这里
+        # 1、从 query_string 或 session 获取传参
+        # 如果是点击 复制并新建（发送GET请求方式） 按钮，则直接进入这里
         from_id = request.args.get('from_id') or session.get('from_id')
         if from_id:
             model = self.get_one(from_id)
@@ -113,7 +117,7 @@ class PostModelView(ModelView):
 
     def after_model_change(self, form, model, is_created):
         if is_created:
-            del session['from_id']  # 3、保存之后可以删除
+            del session['from_id']  # 2、保存之后可以删除
 
 
 admin.add_view(PostModelView(Post, db.session))

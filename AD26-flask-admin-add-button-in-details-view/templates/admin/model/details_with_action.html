@@ -8,18 +8,18 @@
     <div class="form-group">
         <div class="col-md-12 submit-row">
 
-            <form action="{{ url_for('.copy_and_create', id=model.id, url=request.full_path) }}" method="POST" style="margin-left: 5px; float:left;">
+            <form action="{{ url_for('.copy_to_save', id=model.id, url=request.full_path) }}" method="POST" style="margin-left: 5px; float:left;">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" class="btn btn-default"
-                {# onclick="return confirm('确定要复制并新建吗？')" #}
+                    onclick="return confirm('确定要复制并保存吗？')"
                 >
-                复制并新建1
+                复制并保存（表单POST请求方式）
                 </button>
             </form>
 
             {% set href = url_for('.create_view', from_id=model.id, url=request.full_path) %}
             <button type="button" class="btn btn-default" style="margin-left: 5px;" onclick="location.href='{{ href }}'">
-                复制并新建2
+                复制并新建（发送GET请求方式）
             </button>
 
         </div>
