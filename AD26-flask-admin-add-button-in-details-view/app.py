@@ -87,13 +87,13 @@ class PostModelView(ModelView):
             flash(e.args[0])
             abort(redirect(url_for('.details_view', id=model.id)))
 
-    @expose('/copy-and-create', methods=('POST',))
+    @expose('/copy-and-create', methods=('GET', 'POST'))
     def copy_and_create(self):
-        """拷贝并创建"""
+        """复制并新建1"""
         self.validate_csrf()
         url = request.args.get('url')
         model = self.get_model_form_request()
-        session['from_id'] = model.id  # 1、使用 session 可以跨请求传参
+        session['from_id'] = str(model.id)  # 1、使用 session 可以跨请求传参
         return redirect(url_for('.create_view', url=url))
 
     def get_save_return_url(self, model, is_created):
@@ -101,8 +101,14 @@ class PostModelView(ModelView):
         return self.get_url('.details_view', id=model.id)
 
     def create_form(self, obj=None):
-        from_id = session.get('from_id')  # 2、从 session 获取传参
-        model = self.get_one(str(from_id)) if from_id else obj
+        # 2、从 query_string 或 session 获取传参
+        # 如果是点击 复制并新建2 按钮，则直接进入这里
+        from_id = request.args.get('from_id') or session.get('from_id')
+        if from_id:
+            model = self.get_one(from_id)
+            session['from_id'] = str(from_id)
+        else:
+            model = None
         return super().create_form(obj=model)
 
     def after_model_change(self, form, model, is_created):
