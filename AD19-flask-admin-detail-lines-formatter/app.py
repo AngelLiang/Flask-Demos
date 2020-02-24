@@ -197,6 +197,7 @@ class DisabledStringField(StringField):
 
 
 class OrderLineInlineAdmin(InlineFormAdmin):
+    form_columns = ('id', 'product', 'unit_price', 'quantity')
     form_args = dict(
         product=dict(label='Product'),
         unit_price=dict(label='Unit Price'),
@@ -248,6 +249,7 @@ class OrderModelView(ModelView):
             ('1', '已发出'),
         ]}
 
+    # for object_ref in edit view
     inline_models = (OrderLineInlineAdmin(OrderLine), )
 
     # for object_ref
