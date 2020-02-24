@@ -20,6 +20,9 @@ class User(db.Model):
     username = db.Column(db.String(80))
     password = db.Column(db.String(128))
 
+    def __str__(self):
+        return f'{self.name} <{self.username}>'
+
 
 post_tags_table = db.Table(
     'post_tags', db.Model.metadata,
@@ -69,7 +72,10 @@ class PostModelView(ModelView):
 
     form_ajax_refs = {
         'user': {
-            'fields': (User.name,)
+            'fields': (User.name, User.username),
+            'placeholder': 'Please input name or username',
+            'page_size': 10,
+            'minimum_input_length': 0,
         }
     }
 
