@@ -27,6 +27,9 @@ db.init_app(app)
 admin.init_app(app)
 csrf.init_app(app)
 
+####################################################################
+# models
+
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,6 +47,25 @@ class Post(db.Model):
             text=obj.text,
             date=obj.date
         )
+
+####################################################################
+# views
+
+
+FROM_ID_KEY = 'from_id'
+
+
+def get_from_id():
+    return request.args.get(FROM_ID_KEY) or session.get(FROM_ID_KEY)
+
+
+def set_from_id(value):
+    session[FROM_ID_KEY] = str(value)
+
+
+def del_from_id():
+    if FROM_ID_KEY in session:
+        del session[FROM_ID_KEY]
 
 
 class PostModelView(ModelView):
@@ -107,20 +129,23 @@ class PostModelView(ModelView):
     def create_form(self, obj=None):
         # 1、从 query_string 或 session 获取传参
         # 如果是点击 复制并新建（发送GET请求方式） 按钮，则直接进入这里
-        from_id = request.args.get('from_id') or session.get('from_id')
+        from_id = get_from_id()
         if from_id:
             model = self.get_one(from_id)
-            session['from_id'] = str(from_id)
+            set_from_id(from_id)
         else:
             model = None
         return super().create_form(obj=model)
 
     def after_model_change(self, form, model, is_created):
         if is_created:
-            del session['from_id']  # 2、保存之后可以删除
+            del_from_id()  # 2、保存之后可以删除
 
 
 admin.add_view(PostModelView(Post, db.session))
+
+####################################################################
+# initdb
 
 
 def initdb(post_count=100):
