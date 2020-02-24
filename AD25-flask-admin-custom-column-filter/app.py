@@ -30,7 +30,7 @@ class PostStatus(db.Model):
     @staticmethod
     def init_data():
         db.session.add_all([
-            PostStatus(code='DRIFT', label='drift'),
+            PostStatus(code='DRAFT', label='draft'),
             PostStatus(code='ISSUED', label='issued'),
         ])
 
@@ -73,12 +73,10 @@ def initdb(post_count=100):
     db.session.commit()
 
 
-initdb()
-
-
 ####################################################################
 # views
 
+from sqlalchemy.exc import OperationalError
 from flask_admin.contrib.sqla.filters import (
     EnumEqualFilter, EnumFilterNotEqual,
     EnumFilterEmpty, EnumFilterInList,
@@ -86,36 +84,43 @@ from flask_admin.contrib.sqla.filters import (
 )
 
 
+def generate_column_filters():
+    try:
+        return [
+            EnumEqualFilter(PostStatus.id, 'Status', options=[
+                (s.id, s.label) for s in PostStatus.query.all()
+            ]),
+            EnumFilterNotEqual(PostStatus.id, 'Status', options=[
+                (s.id, s.label) for s in PostStatus.query.all()
+            ]),
+            EnumFilterInList(PostStatus.id, 'Status', options=[
+                (s.id, s.label) for s in PostStatus.query.all()
+            ]),
+            EnumFilterNotInList(PostStatus.id, 'Status', options=[
+                (s.id, s.label) for s in PostStatus.query.all()
+            ]),
+            EnumFilterEmpty(PostStatus.id, 'Status', options=[
+                (s.id, s.label) for s in PostStatus.query.all()
+            ]),
+        ]
+    except OperationalError:
+        return []
+
+
 class PostModelView(ModelView):
     can_view_details = True
     column_list = ('id', 'title', 'status', 'date',)
     column_default_sort = ('date', True)
 
-    column_filters = [
-        EnumEqualFilter(PostStatus.id, 'Status', options=[
-            (s.id, s.label) for s in PostStatus.query.all()
-        ]),
-        EnumFilterNotEqual(PostStatus.id, 'Status', options=[
-            (s.id, s.label) for s in PostStatus.query.all()
-        ]),
-        EnumFilterInList(PostStatus.id, 'Status', options=[
-            (s.id, s.label) for s in PostStatus.query.all()
-        ]),
-        EnumFilterNotInList(PostStatus.id, 'Status', options=[
-            (s.id, s.label) for s in PostStatus.query.all()
-        ]),
-        EnumFilterEmpty(PostStatus.id, 'Status', options=[
-            (s.id, s.label) for s in PostStatus.query.all()
-        ]),
-    ]
+    column_filters = generate_column_filters()
 
 
 admin.add_view(PostModelView(Post, db.session))
 
 
-# @app.before_first_request
-# def init_data():
-#     initdb()
+@app.before_first_request
+def init_data():
+    initdb()
 
 
 @app.route('/')
