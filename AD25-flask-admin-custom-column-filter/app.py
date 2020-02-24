@@ -19,6 +19,21 @@ admin.init_app(app)
 # models
 
 
+post_tags_table = db.Table(
+    'post_tags', db.Model.metadata,
+    db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
+)
+
+
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode(64))
+
+    def __str__(self):
+        return f'{self.name}'
+
+
 class PostStatus(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(32))
@@ -44,33 +59,10 @@ class Post(db.Model):
     status_id = db.Column(db.Integer, db.ForeignKey(PostStatus.id))
     status = db.relationship(PostStatus, foreign_keys=[status_id])
 
+    tags = db.relationship('Tag', secondary=post_tags_table)
+
     def __str__(self):
         return f'{self.title}'
-
-
-def initdb(post_count=100):
-    import random
-    from faker import Faker
-
-    fake = Faker()
-
-    db.drop_all()
-    db.create_all()
-
-    PostStatus.init_data()
-
-    posts = []
-    for i in range(post_count):
-        post = Post(
-            title=fake.sentence(),
-            date=fake.past_date(),
-            status=PostStatus.query.get(
-                random.randint(1, PostStatus.query.count())
-            )
-        )
-        posts.append(post)
-    db.session.add_all(posts)
-    db.session.commit()
 
 
 ####################################################################
@@ -112,13 +104,67 @@ def generate_column_filters():
 
 class PostModelView(ModelView):
     can_view_details = True
-    column_list = ('id', 'title', 'status', 'date',)
+    column_list = ('id', 'title', 'status', 'tags', 'date',)
     column_default_sort = ('date', True)
 
-    column_filters = generate_column_filters()
+    column_filters = generate_column_filters()+['tags']
+
+
+class PostStatusModelView(ModelView):
+    can_create = False
+    can_delete = False
+
+
+class TagModelView(ModelView):
+    pass
 
 
 admin.add_view(PostModelView(Post, db.session))
+admin.add_view(PostStatusModelView(PostStatus, db.session))
+admin.add_view(TagModelView(Tag, db.session))
+
+
+####################################################################
+# initdb
+
+
+def initdb(post_count=500, tag_count=50):
+    import random
+    from faker import Faker
+
+    fake = Faker()
+
+    db.drop_all()
+    db.create_all()
+
+    tags = []
+    for i in range(tag_count):
+        tag = Tag(
+            name=fake.word(),
+        )
+        tags.append(tag)
+    db.session.add_all(tags)
+    db.session.commit()
+
+    PostStatus.init_data()
+
+    posts = []
+    for i in range(post_count):
+        post = Post(
+            title=fake.sentence(),
+            date=fake.past_date(),
+            status=PostStatus.query.get(
+                random.randint(1, PostStatus.query.count())
+            ),
+            tags=list(set([
+                Tag.query.get(random.randint(1, Tag.query.count())),
+                Tag.query.get(random.randint(1, Tag.query.count())),
+                Tag.query.get(random.randint(1, Tag.query.count()))
+            ]))
+        )
+        posts.append(post)
+    db.session.add_all(posts)
+    db.session.commit()
 
 
 @app.before_first_request
