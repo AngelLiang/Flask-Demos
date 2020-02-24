@@ -76,33 +76,36 @@ def initdb(post_count=100):
 ####################################################################
 # views
 
-from sqlalchemy.exc import OperationalError
-from flask_admin.contrib.sqla.filters import (
-    EnumEqualFilter, EnumFilterNotEqual,
-    EnumFilterEmpty, EnumFilterInList,
-    EnumFilterNotInList
-)
+
+def enum_filters_factory(column, label, options):
+    from flask_admin.contrib.sqla.filters import (
+        EnumEqualFilter, EnumFilterNotEqual,
+        EnumFilterEmpty, EnumFilterInList,
+        EnumFilterNotInList
+    )
+    return [
+        EnumEqualFilter(column, label, options=options),
+        EnumFilterNotEqual(column, label, options=options),
+        EnumFilterInList(column, label, options=options),
+        EnumFilterNotInList(column, label, options=options),
+        EnumFilterEmpty(column, label, options=options),
+    ]
 
 
 def generate_column_filters():
+    from sqlalchemy.exc import OperationalError
+
     try:
-        return [
-            EnumEqualFilter(PostStatus.id, 'Status', options=[
-                (s.id, s.label) for s in PostStatus.query.all()
-            ]),
-            EnumFilterNotEqual(PostStatus.id, 'Status', options=[
-                (s.id, s.label) for s in PostStatus.query.all()
-            ]),
-            EnumFilterInList(PostStatus.id, 'Status', options=[
-                (s.id, s.label) for s in PostStatus.query.all()
-            ]),
-            EnumFilterNotInList(PostStatus.id, 'Status', options=[
-                (s.id, s.label) for s in PostStatus.query.all()
-            ]),
-            EnumFilterEmpty(PostStatus.id, 'Status', options=[
-                (s.id, s.label) for s in PostStatus.query.all()
-            ]),
-        ]
+        column_filters = []
+
+        column = PostStatus.id
+        options = db.session.query(
+            PostStatus.id, PostStatus.label
+        ).all()
+        column_filters.extend(
+            enum_filters_factory(column, 'Status', options=options)
+        )
+        return column_filters
     except OperationalError:
         return []
 
