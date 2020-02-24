@@ -2,6 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.contrib.sqla.ajax import QueryAjaxModelLoader
+
 
 db = SQLAlchemy()
 admin = Admin(template_mode='bootstrap3')
@@ -13,15 +15,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 admin.init_app(app)
 
+####################################################################
+# models
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80))
     username = db.Column(db.String(80))
     password = db.Column(db.String(128))
-
-    def __str__(self):
-        return f'{self.name} <{self.username}>'
 
 
 post_tags_table = db.Table(
@@ -53,6 +55,16 @@ class Tag(db.Model):
     def __str__(self):
         return f'{self.name}'
 
+####################################################################
+# views
+
+
+class UserQueryAjaxModelLoader(QueryAjaxModelLoader):
+    def format(self, model):
+        if not model:
+            return None
+        return (str(model.id), f'{model.name} <{model.username}>')
+
 
 class UserModelView(ModelView):
     can_delete = False
@@ -71,17 +83,27 @@ class PostModelView(ModelView):
     column_default_sort = ('date', True)
 
     form_ajax_refs = {
-        'user': {
-            'fields': (User.name, User.username),
-            'placeholder': 'Please input name or username',
-            'page_size': 10,
-            'minimum_input_length': 0,
-        }
+        # 'user': {
+        #     'fields': (User.name, User.username),
+        #     'placeholder': 'Please input name or username',
+        #     'page_size': 10,
+        #     'minimum_input_length': 0,
+        # }
+        'user': UserQueryAjaxModelLoader(
+            'user', db.session, User,
+            placeholder='Please input name or username',
+            fields=(User.name, User.username),
+            page_size=20,
+            minimum_input_length=0,
+        )
     }
 
 
 admin.add_view(UserModelView(User, db.session))
 admin.add_view(PostModelView(Post, db.session))
+
+####################################################################
+# initdb
 
 
 def initdb(user_count=50, post_count=100):
