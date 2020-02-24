@@ -17,10 +17,22 @@
                 </button>
             </form>
 
-            {% set href = url_for('.create_view', from_id=model.id, url=request.full_path) %}
+            {# {% set href = url_for('.create_view', from_id=model.id, url=request.full_path) %}
             <button type="button" class="btn btn-default" style="margin-left: 5px;" onclick="location.href='{{ href }}'">
                 复制并新建（发送GET请求方式）
-            </button>
+            </button> #}
+
+            <a href="{{ url_for('.create_view', from_id=model.id, url=request.full_path) }}">
+                <button type="button" class="btn btn-default" style="margin-left: 5px;">
+                    复制并新建（发送GET请求方式）
+                </button>
+            </a>
+
+            <a href="{{ return_url }}">
+                <button type="button" class="btn btn-default" style="margin-left: 5px;">
+                    返回
+                </button>
+            </a>
 
         </div>
     </div>
