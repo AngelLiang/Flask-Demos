@@ -1,0 +1,12 @@
+{% import "macros/form.html" as macros %}
+
+<form role="form" action="" method="post" class="form-horizontal">
+    {{ form.hidden_tag() if form.hidden_tag }}
+    <fieldset>
+        {{ macros.render_field(form, form.username) }}
+        {{ macros.render_field(form, form.password) }}
+        {{ macros.render_field(form, form.comfirm_password) }}
+        {{ macros.render_field(form, form.email) }}
+        <input type="submit" class="btn btn-lg btn-block btn-success" value="提交"/>
+    </fieldset>
+</form>

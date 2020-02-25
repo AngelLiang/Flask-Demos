@@ -1,0 +1,71 @@
+
+{% macro render_label(field) %}
+    <label for="{{ field.id }}" class="col-md-3 control-label">{{ field.label.text }}
+        {# {% if is_required_form_field(field) %}
+          <strong style="color: red">&#42;</strong>
+        {%- else -%}
+          &nbsp;
+        {%- endif %} #}
+    </label>
+{% endmacro %}
+
+{% macro _render_field(field, kwargs) %}
+    {% set direct_error = field.errors %}
+    <div class="{{ kwargs.get('column_class', 'col-md-9') }}">
+      {% set _dummy = kwargs.setdefault('class', 'form-control') %}
+      {{ field(**kwargs)|safe }}
+      {# field description #}
+      {% if field.description %}
+        <p class="help-block">{{ field.description|safe }}</p>
+      {% endif %}
+      {# 渲染错误信息 #}
+      {% if direct_error %}
+        <ul class="help-block input-errors">
+        {% for e in field.errors if e is string %}
+          <li>{{ e }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+{% endmacro %}
+
+{# Usage::
+
+    {% import "_macros.html" as macros %}
+
+    <form role="form" action="" method="post" class="form-horizontal">
+        {{ form.hidden_tag() if form.hidden_tag }}
+        <fieldset>
+            {{ macros.render_field(form, form.username) }}
+            {{ macros.render_field(form, form.password) }}
+            {{ macros.render_field(form, form.comfirm_password) }}
+            <input type="submit" class="btn btn-lg btn-block" value="提交"/>
+        </fieldset>
+    </form>
+
+ #}
+{% macro render_field(form, field, kwargs={}, caller=None) %}
+  {% set direct_error = field.errors %}
+  <div class="form-group{{ ' has-error' if direct_error else '' }}">
+    {{ render_label(field) }}
+    {{ _render_field(field, kwargs) }}
+    {% if caller %}
+      {{ caller(form, field, direct_error, kwargs) }}
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro render_form_buttons(cancel_url, extra=None, is_modal=False) %}
+    <hr>
+    <div class="form-group">
+      <div class="col-md-offset-2 col-md-10 submit-row">
+        <input type="submit" class="btn btn-primary" value="{{ _gettext('Save') }}" />
+        {% if extra %}
+          {{ extra }}
+        {% endif %}
+        {% if cancel_url %}
+          <a href="{{ cancel_url }}" class="btn btn-danger" role="button" {% if is_modal %}data-dismiss="modal"{% endif %}>{{ _gettext('Cancel') }}</a>
+        {% endif %}
+      </div>
+    </div>
+{% endmacro %}
