@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField
 from wtforms.validators import ValidationError, DataRequired, Length
 from flask_wtf import FlaskForm
 from flask import Flask
+from flask import Blueprint
 from flask import request
 from flask import flash
 from flask import render_template
@@ -54,9 +55,17 @@ def check_username(word):
     return True
 
 
+class UsernameField(StringField):
+
+    def process_formdata(self, valuelist):
+        super().process_formdata(valuelist)
+        self.data = self.data.strip()  # 去除两端空格
+
+
 class SetupForm(FlaskForm):
     """管理员初始化配置"""
-    username = StringField('管理员帐号', validators=[DataRequired(), Length(1, 80)])
+    username = UsernameField('管理员帐号', validators=[
+                             DataRequired(), Length(1, 80)])
     password = PasswordField('密码', validators=[DataRequired(), Length(3)])
     comfirm_password = PasswordField(
         '确认密码', validators=[DataRequired(), Length(3)])
@@ -64,7 +73,7 @@ class SetupForm(FlaskForm):
     email = StringField('邮箱')
 
     def validate_username(self, field):
-        username = self.username.data
+        username = self.username.data.strip()
         if not check_username(username):
             raise ValidationError('用户名不符合规则')
 
@@ -79,10 +88,10 @@ class SetupForm(FlaskForm):
 # views
 
 
-admin.add_view(ModelView(User, db.session))
+setup_bp = Blueprint('setup_bp', __name__)
 
 
-@app.route('/setup', methods=['GET', 'POST'])
+@setup_bp.route('/setup', methods=['GET', 'POST'])
 def setup():
     form = SetupForm()
     if request.method == 'POST':
@@ -99,6 +108,14 @@ def setup():
                 db.session.commit()
                 flash('配置管理员成功', category='success')
     return render_template('setup/setup.html', form=form)
+
+
+def register_setup_view(app):
+    app.register_blueprint(setup_bp)
+
+
+register_setup_view(app)
+admin.add_view(ModelView(User, db.session))
 
 
 @app.route('/')
