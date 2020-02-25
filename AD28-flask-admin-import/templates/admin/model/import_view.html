@@ -1,0 +1,40 @@
+{% extends 'admin/master.html' %}
+{% import 'admin/lib.html' as lib with context %}
+
+
+{% block body %}
+
+    <ul class="nav nav-tabs actions-nav">
+        <li >
+            <a href="{{ get_url('.index_view') }}">{{ _gettext('List') }}</a>
+        </li>
+
+        {# 可创建 #}
+        {%- if admin_view.can_create -%}
+        <li>
+            <a href="{{ get_url('.create_view', url=return_url) }}">{{ _gettext('Create') }}</a>
+        </li>
+        {%- endif -%}
+
+        {% if admin_view.can_import %}
+        <li class="active">
+            {% set title = admin_view.import_title or 'Import' %}
+            <a href="javascript:void(0)">{{ title }}</a>
+        </li>
+        {% endif %}
+    </ul>
+
+    {% call lib.form_tag(action=action) %}
+        {# 渲染字段 #}
+        {{ lib.render_form_fields(form, form_opts=form_opts) }}
+        {# {{ lib.render_form_buttons(cancel_url, extra, is_modal) }} #}
+        <hr>
+        <div class="form-group">
+        <div class="col-md-offset-2 col-md-10 submit-row">
+            <input type="submit" class="btn btn-success" value="{{ _gettext('Submit') }}"/>
+            <a class="btn btn-primary" href="{{ url_for('.download_import_template') }}">下载模板</a>
+            <a href="{{ cancel_url }}" class="btn btn-danger" role="button" {% if is_modal %}data-dismiss="modal"{% endif %}>{{ _gettext('Cancel') }}</a>
+        </div>
+        </div>
+    {% endcall %}
+{% endblock %}
