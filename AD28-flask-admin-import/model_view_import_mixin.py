@@ -185,7 +185,12 @@ class ModelViewImportMixin(object):
     def get_base_url(self):
         return self.base_url
 
-    def get_column_import_formatter(self):
+    def get_column_import_formatters(self):
+        """获取字段导入的formatter
+
+        默认根据数据字段类型配置默认的formatter
+        暂时不支持 Enum 类型
+        """
         import datetime as dt
         from decimal import Decimal
         from sqlalchemy import inspect
@@ -226,8 +231,12 @@ class ModelViewImportMixin(object):
         return self.get_export_columns()
 
     def get_import_key_value(self, column_name, column_value):
+        """
+        :param column_name:
+        :param column_value:
+        """
         kv_mapping = self._column_type_formatters_import_mapping
-        column_formatter = self._column_import_formatter
+        column_formatter = self._column_formatters_import
 
         column_name = kv_mapping.get(column_name)
         if column_name:
@@ -235,14 +244,6 @@ class ModelViewImportMixin(object):
             if formatter:
                 return column_name, formatter(column_value)
         return None, None
-
-        # return self._get_list_value(
-        #     None,
-        #     model,
-        #     name,
-        #     self.column_formatters_import,
-        #     self.column_type_formatters_import,
-        # )
 
     def get_column_type_formatters_import_mapping(self):
         import_columns = self.get_import_columns()
@@ -253,7 +254,9 @@ class ModelViewImportMixin(object):
         super()._refresh_cache()
         # 缓存下面两个属性
         self._column_type_formatters_import_mapping = self.get_column_type_formatters_import_mapping()
-        self._column_import_formatter = self.get_column_import_formatter()
+        self._column_formatters_import = self.get_column_import_formatters()
+        if self.column_formatters_import:
+            self._column_formatters_import.update(self.column_formatters_import)
 
     def _import_data(self, filename):
         ext = op.splitext(filename)[1].lower()

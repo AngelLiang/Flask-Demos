@@ -62,6 +62,8 @@ from .model_view_import_mixin import ModelViewImportMixin  # noqa
 
 
 class PostModelView(ModelViewImportMixin, ModelView):
+    can_view_details = True
+    can_delete = False
 
     # column_list = ('title', 'tags', 'date')
     column_exclude_list = ('text',)
@@ -81,6 +83,11 @@ class PostModelView(ModelViewImportMixin, ModelView):
     )
     export_types = ['xls', 'xlsx', 'csv', 'json']
     export_max_rows = 0
+
+    # 导入
+    column_formatters_import = {
+        'slug': lambda s: s[:3]
+    }
 
 
 admin.add_view(PostModelView(Post, db.session))
