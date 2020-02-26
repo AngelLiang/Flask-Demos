@@ -1,5 +1,6 @@
 # coding=utf-8
 
+import platform
 import os
 import os.path as op
 import mimetypes
@@ -23,6 +24,8 @@ from flask_admin.form import BaseForm
 from .upload_form import UploadFormMixin
 
 temppath = tempfile.gettempdir()
+
+IS_WINDOWS = platform.system() == 'Windows'
 
 
 def str2bool(s):
@@ -98,7 +101,7 @@ class ModelViewImportMixin(UploadFormMixin):
             self.delete_file(filename)
         # 保存文件
         self.save_file(filename, form.upload.data)
-        # self.on_file_upload(directory, path, filename)
+        self.on_file_upload(directory, path, filename)
         return filename
 
     @property
@@ -174,9 +177,6 @@ class ModelViewImportMixin(UploadFormMixin):
     def get_import_form(self):
         return self.get_create_form()
 
-    # def import_form(self, obj=None):
-    #     return self.create_form(obj=obj)
-
     def get_column_import_formatter(self):
         import datetime as dt
         from decimal import Decimal
@@ -212,29 +212,35 @@ class ModelViewImportMixin(UploadFormMixin):
             column_formatter[c.name] = formatter
         return column_formatter
 
+    def get_import_columns(self):
+        return self.get_export_columns()
+
     def _import_data(self, filename):
-        models = []
 
-        with open(filename, 'r') as fh:
-            data = tablib.Dataset().load(fh)
+        format = filename.split('.')[-1]
+        mode = 'r' if format == 'csv' else 'rb'
+        with open(filename, mode) as fh:
+            data = tablib.Dataset().load(fh, format=format)
 
+        import_columns = self.get_import_columns()
+        import_columns_mapping = dict(import_columns)
+        column_name_mapping = {v: k for k, v in import_columns_mapping.items()}
         column_formatter = self.get_column_import_formatter()
-        # print(column_formatter)
 
-        # form_cls = self.get_import_form()
-
+        models = []
         for item in data.dict:
             obj = self.model()
             for k, v in item.items():
-                column_name = k.replace(' ', '_').lower()
-                formatter = column_formatter.get(column_name)
-                if formatter:
-                    setattr(obj, column_name, formatter(v))
+                column_name = column_name_mapping.get(k)
+                if column_name:
+                    formatter = column_formatter.get(column_name)
+                    if formatter:
+                        setattr(obj, column_name, formatter(v))
             models.append(obj)
 
         return models
 
-    def generate_template_filename(self):
+    def get_template_name(self):
         return self.import_template_filename or f'{self.model.__name__}_template.xls'
 
     @expose('/import/', methods=['GET', 'POST'])
@@ -259,8 +265,9 @@ class ModelViewImportMixin(UploadFormMixin):
             except Exception as ex:
                 flash(gettext('Failed to save file: %(error)s', error=ex), 'error')
             else:
-                # 导入数据
+                current_app.logger.debug(f'Save path: {filename}')
                 try:
+                    # 导入数据
                     models = self._import_data(filename)
                     self.session.add_all(models)
                     self.session.commit()
@@ -278,7 +285,7 @@ class ModelViewImportMixin(UploadFormMixin):
     @expose('/import/download-template/', methods=['GET'])
     def download_import_template(self):
         """下载导入数据的模板文件"""
-        filename = self.generate_template_filename()
+        filename = self.get_template_name()
 
         disposition = f'attachment;filename={filename}'
 

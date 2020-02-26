@@ -72,7 +72,8 @@ class PostModelView(ModelViewImportMixin, ModelView):
     column_export_list = (
         'title', 'slug', 'text',
         'price', 'money', 'is_delete', 'create_date', 'create_time',
-        'update_datetime', 'language',
+        'update_datetime',
+        'language',
     )
     export_types = ['xls', 'xlsx', 'csv', 'json']
     export_max_rows = 0
