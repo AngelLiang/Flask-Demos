@@ -29,11 +29,8 @@ IS_WINDOWS = platform.system() == 'Windows'
 
 
 def str2bool(s):
-    """
-    如果 s 为 '1', 'yes', 'true' ，返回 True
-    其他情况，比如为 '0', 'no', 'false' ，返回 False
-    """
-    return s.lower() in ('1', 'yes', 'true')
+    # return s.lower() in ('1', 'y', 'yes', 'true')
+    return s.lower() not in ('0', 'n', 'no', 'f', 'false')
 
 
 class ModelViewImportMixin(UploadFormMixin):
@@ -49,6 +46,8 @@ class ModelViewImportMixin(UploadFormMixin):
     import_filepath = temppath
     import_title = 'Import'
     import_template_filename = None
+    import_columns = None
+    import_exclude_columns = None
     column_import_list = []
     allowed_extensions = import_types
     storage = LocalFileStorage(import_filepath)
@@ -89,6 +88,7 @@ class ModelViewImportMixin(UploadFormMixin):
             [directory, secure_filename(form.upload.data.filename)]
         )
 
+        # 检查文件是否存在
         # if self.storage.path_exists(filename):
         #     secure_name = self._separator.join([path, secure_filename(form.upload.data.filename)])
         #     raise Exception(gettext('File "%(name)s" already exists.', name=secure_name))
@@ -96,8 +96,8 @@ class ModelViewImportMixin(UploadFormMixin):
         #     self.save_file(filename, form.upload.data)
         #     self.on_file_upload(directory, path, filename)
 
+        # 如果文件存在则删除
         if self.storage.path_exists(filename):
-            # 如果存在则覆盖
             self.delete_file(filename)
         # 保存文件
         self.save_file(filename, form.upload.data)
@@ -171,12 +171,6 @@ class ModelViewImportMixin(UploadFormMixin):
     def get_base_url(self):
         return self.base_url
 
-    def export_columns_remove(self, export_columns):
-        return export_columns
-
-    def get_import_form(self):
-        return self.get_create_form()
-
     def get_column_import_formatter(self):
         import datetime as dt
         from decimal import Decimal
@@ -213,14 +207,18 @@ class ModelViewImportMixin(UploadFormMixin):
         return column_formatter
 
     def get_import_columns(self):
+        if self.import_columns:
+            return self.import_columns
         return self.get_export_columns()
 
     def _import_data(self, filename):
+        ext = op.splitext(filename)[1].lower()
+        if ext.startswith('.'):
+            ext = ext[1:]
 
-        format = filename.split('.')[-1]
-        mode = 'r' if format == 'csv' else 'rb'
+        mode = 'r' if ext == 'csv' else 'rb'
         with open(filename, mode) as fh:
-            data = tablib.Dataset().load(fh, format=format)
+            data = tablib.Dataset().load(fh, format=ext)
 
         import_columns = self.get_import_columns()
         import_columns_mapping = dict(import_columns)
@@ -255,17 +253,16 @@ class ModelViewImportMixin(UploadFormMixin):
             flash('导入数据被禁用', 'error')
             return redirect(return_url)
 
-        template = self.import_template
         form = self.upload_form()
 
         if request.method == 'POST' and form.validate():
-            current_app.logger.debug(f'upload:{form.upload.data.filename}')
+            # current_app.logger.debug(f'upload:{form.upload.data.filename}')
             try:
                 filename = self._save_form_files(directory, path, form)
             except Exception as ex:
                 flash(gettext('Failed to save file: %(error)s', error=ex), 'error')
             else:
-                current_app.logger.debug(f'Save path: {filename}')
+                # current_app.logger.debug(f'Save path: {filename}')
                 try:
                     # 导入数据
                     models = self._import_data(filename)
@@ -280,6 +277,7 @@ class ModelViewImportMixin(UploadFormMixin):
                         self.delete_file(filename)  # 删除导入文件
                     return redirect(return_url)
 
+        template = self.import_template
         return self.render(template, form=form, cancel_url=return_url)
 
     @expose('/import/download-template/', methods=['GET'])

@@ -89,7 +89,7 @@ def initdb(post_count=12, tag_count=3):
     import random
     from faker import Faker
 
-    fake = Faker()
+    fake = Faker('zh-CN')
 
     db.drop_all()
     db.create_all()
