@@ -42,6 +42,7 @@ class ModelViewImportMixin(object):
     import_template = 'admin/model/import_view.html'
 
     form_base_class = BaseForm
+    # 使用 xls 或 xlsx 需要安装一些扩展： pip install tablib[xlsx,xls]
     import_types = ('xls', 'xlsx', 'csv', 'json')
     import_title = 'Import'
     import_template_filename = None
