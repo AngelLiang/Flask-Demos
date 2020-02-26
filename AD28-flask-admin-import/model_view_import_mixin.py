@@ -20,13 +20,20 @@ from flask_admin.babel import gettext
 from flask_admin.contrib.fileadmin import LocalFileStorage
 from flask_admin.babel import gettext, lazy_gettext
 from flask_admin.form import BaseForm
+from flask_admin.model import typefmt
 from wtforms import fields, validators
 import tablib
 
 
-temppath = tempfile.gettempdir()
-
 IS_WINDOWS = platform.system() == 'Windows'
+
+# IMPORT_FORMATTERS = {
+#     type(None): typefmt.empty_formatter,
+#     list: typefmt.list_formatter,
+#     dict: typefmt.dict_formatter,
+# }
+
+temppath = tempfile.gettempdir()
 
 
 def str2bool(s):
@@ -48,7 +55,8 @@ class ModelViewImportMixin(object):
     import_template_filename = None
     import_columns = None
     import_exclude_columns = None
-    column_import_list = []
+    column_formatters_import = None
+    column_type_formatters_import = None
 
     delete_after_import = True  # 导入成功后删除文件
 
@@ -217,6 +225,36 @@ class ModelViewImportMixin(object):
             return self.import_columns
         return self.get_export_columns()
 
+    def get_import_key_value(self, column_name, column_value):
+        kv_mapping = self._column_type_formatters_import_mapping
+        column_formatter = self._column_import_formatter
+
+        column_name = kv_mapping.get(column_name)
+        if column_name:
+            formatter = column_formatter.get(column_name)
+            if formatter:
+                return column_name, formatter(column_value)
+        return None, None
+
+        # return self._get_list_value(
+        #     None,
+        #     model,
+        #     name,
+        #     self.column_formatters_import,
+        #     self.column_type_formatters_import,
+        # )
+
+    def get_column_type_formatters_import_mapping(self):
+        import_columns = self.get_import_columns()
+        import_columns_mapping = dict(import_columns)
+        return {v: k for k, v in import_columns_mapping.items()}
+
+    def _refresh_cache(self):
+        super()._refresh_cache()
+        # 缓存下面两个属性
+        self._column_type_formatters_import_mapping = self.get_column_type_formatters_import_mapping()
+        self._column_import_formatter = self.get_column_import_formatter()
+
     def _import_data(self, filename):
         ext = op.splitext(filename)[1].lower()
         if ext.startswith('.'):
@@ -226,20 +264,13 @@ class ModelViewImportMixin(object):
         with open(filename, mode) as fh:
             data = tablib.Dataset().load(fh, format=ext)
 
-        import_columns = self.get_import_columns()
-        import_columns_mapping = dict(import_columns)
-        column_name_mapping = {v: k for k, v in import_columns_mapping.items()}
-        column_formatter = self.get_column_import_formatter()
-
         models = []
         for item in data.dict:
             obj = self.model()
-            for k, v in item.items():
-                column_name = column_name_mapping.get(k)
-                if column_name:
-                    formatter = column_formatter.get(column_name)
-                    if formatter:
-                        setattr(obj, column_name, formatter(v))
+            for key, value in item.items():
+                k, v = self.get_import_key_value(key, value)
+                if k is not None:
+                    setattr(obj, k, v)
             models.append(obj)
 
         return models
