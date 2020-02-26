@@ -60,7 +60,7 @@ class Post(db.Model):
 ####################################################################
 # views
 
-from .import_mixin import ModelViewImportMixin  # noqa
+from .model_view_import_mixin import ModelViewImportMixin  # noqa
 
 
 class PostModelView(ModelViewImportMixin, ModelView):
