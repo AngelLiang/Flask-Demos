@@ -18,10 +18,11 @@ from flask import abort
 from flask_admin import expose
 from flask_admin.babel import gettext
 from flask_admin.contrib.fileadmin import LocalFileStorage
+from flask_admin.babel import gettext, lazy_gettext
+from flask_admin.form import BaseForm
+from wtforms import fields, validators
 import tablib
 
-from flask_admin.form import BaseForm
-from .upload_form import UploadFormMixin
 
 temppath = tempfile.gettempdir()
 
@@ -29,11 +30,10 @@ IS_WINDOWS = platform.system() == 'Windows'
 
 
 def str2bool(s):
-    # return s.lower() in ('1', 'y', 'yes', 'true')
     return s.lower() not in ('0', 'n', 'no', 'f', 'false')
 
 
-class ModelViewImportMixin(UploadFormMixin):
+class ModelViewImportMixin(object):
     """导入模型混入类"""
 
     can_import = True
@@ -246,6 +246,55 @@ class ModelViewImportMixin(UploadFormMixin):
     def get_template_name(self):
         return self.import_template_filename or f'{self.model.__name__}_template.xls'
 
+    def get_upload_form(self):
+        """
+            Upload form class for file upload view.
+
+            Override to implement customized behavior.
+        """
+        class UploadForm(self.form_base_class):
+            """
+                File upload form. Works with FileAdmin instance to check if it
+                is allowed to upload file with given extension.
+            """
+            upload = fields.FileField(lazy_gettext('File to upload'))
+
+            def __init__(self, *args, **kwargs):
+                super(UploadForm, self).__init__(*args, **kwargs)
+                self.admin = kwargs['admin']
+
+            def validate_upload(self, field):
+                if not self.upload.data:
+                    raise validators.ValidationError(gettext('File required.'))
+
+                filename = self.upload.data.filename
+
+                if not self.admin.is_file_allowed(filename):
+                    raise validators.ValidationError(
+                        gettext('Invalid file type.'))
+
+        return UploadForm
+
+    def upload_form(self):
+        """
+            Instantiate file upload form and return it.
+
+            Override to implement custom behavior.
+        """
+        upload_form_class = self.get_upload_form()
+        if request.form:
+            # Workaround for allowing both CSRF token + FileField to be submitted
+            # https://bitbucket.org/danjac/flask-wtf/issue/12/fieldlist-filefield-does-not-follow
+            formdata = request.form.copy()  # as request.form is immutable
+            formdata.update(request.files)
+
+            # admin=self allows the form to use self.is_file_allowed
+            return upload_form_class(formdata, admin=self)
+        elif request.files:
+            return upload_form_class(request.files, admin=self)
+        else:
+            return upload_form_class(admin=self)
+
     @expose('/import/', methods=['GET', 'POST'])
     def import_view(self):
         return_url = url_for('.index_view')
@@ -285,9 +334,10 @@ class ModelViewImportMixin(UploadFormMixin):
         template = self.import_template
         return self.render(template, form=form, cancel_url=return_url)
 
-    @expose('/import/download-template/', methods=['GET'])
-    def download_import_template(self):
-        """下载导入数据的模板文件"""
+    @expose('/import/template-file/', methods=['GET'])
+    def get_import_template_file(self):
+        """获取导入数据的模板文件"""
+        format = request.args.get('format', 'xls')
         filename = self.get_template_name()
 
         disposition = f'attachment;filename={filename}'
@@ -298,10 +348,10 @@ class ModelViewImportMixin(UploadFormMixin):
         if encoding:
             mimetype = '%s; charset=%s' % (mimetype, encoding)
 
-        columns = self.column_import_list
-        headers = [self.get_columne_name(c) for c in columns]
+        columns = self.get_import_columns()
+        headers = [c[1] for c in columns]
         ds = tablib.Dataset(headers=headers)
-        response_data = ds.export(format='xls')
+        response_data = ds.export(format=format)
 
         return Response(
             response_data,

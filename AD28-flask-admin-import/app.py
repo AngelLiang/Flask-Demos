@@ -67,6 +67,12 @@ class PostModelView(ModelViewImportMixin, ModelView):
 
     # column_list = ('title', 'tags', 'date')
     column_exclude_list = ('text',)
+    column_labels = {
+        'title': '标题',
+        'create_date': '创建日期',
+        'create_time': '创建时间',
+        'update_datetime': '更新时间',
+    }
 
     can_export = True
     column_export_list = (
