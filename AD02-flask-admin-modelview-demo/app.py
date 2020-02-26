@@ -1,3 +1,4 @@
+import datetime as dt
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
@@ -36,8 +37,15 @@ post_tags_table = db.Table(
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128))
+    slug = db.Column(db.String(1024))
     text = db.Column(db.Text)
-    date = db.Column(db.Date)
+    price = db.Column(db.Float)
+    is_delete = db.Column(db.Boolean)
+    create_date = db.Column(db.Date)
+    create_time = db.Column(db.Time)
+    update_datetime = db.Column(db.DateTime, onupdate=dt.datetime.now)
+    money = db.Column(db.DECIMAL(10, 4))
+    language = db.Column(db.Enum('python', 'flask'))
 
     user_id = db.Column(db.Integer(), db.ForeignKey(User.id))
     user = db.relationship(User, backref='posts')
@@ -79,8 +87,15 @@ class UserModelView(ModelView):
 
 class PostModelView(ModelView):
     can_view_details = True
-    column_list = ('id', 'title', 'date', 'user')
-    column_default_sort = ('date', True)
+    column_list = (
+        'title', 'slug', 'text', 'tags',
+        'price', 'money', 'is_delete', 'create_date', 'create_time',
+        'update_datetime',
+        'language',
+        'user',
+    )
+    column_exclude_list = ('text',)
+    column_default_sort = ('create_date', True)
 
     form_ajax_refs = {
         # 'user': {
@@ -106,7 +121,7 @@ admin.add_view(PostModelView(Post, db.session))
 # initdb
 
 
-def initdb(user_count=50, post_count=100):
+def initdb(user_count=50, post_count=100, tag_count=10):
     import random
     from faker import Faker
 
@@ -126,12 +141,33 @@ def initdb(user_count=50, post_count=100):
     db.session.add_all(users)
     db.session.commit()
 
+    tags = []
+    for i in range(tag_count):
+        tag = Tag(
+            name=fake.word(),
+        )
+        tags.append(tag)
+    db.session.add_all(tags)
+    db.session.commit()
+
     posts = []
     for i in range(post_count):
         post = Post(
             title=fake.sentence(),
-            date=fake.past_date(),
-            user_id=random.randrange(1, User.query.count())
+            slug=fake.sentence(),
+            text=fake.text(),
+            tags=list(set([
+                Tag.query.get(random.randint(1, Tag.query.count())),
+                Tag.query.get(random.randint(1, Tag.query.count())),
+                Tag.query.get(random.randint(1, Tag.query.count())),
+            ])),
+            money=fake.pydecimal(),
+            price=fake.pyfloat(),
+            is_delete=random.choice((False, True)),
+            create_date=fake.past_date(),
+            create_time=fake.time_object(),
+            update_datetime=fake.past_datetime(),
+            user=User.query.get(random.randint(1, User.query.count())),
         )
         posts.append(post)
     db.session.add_all(posts)
