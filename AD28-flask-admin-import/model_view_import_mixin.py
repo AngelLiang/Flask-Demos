@@ -55,8 +55,8 @@ class ModelViewImportMixin(object):
     import_template_filename = None
     import_columns = None
     import_exclude_columns = None
-    column_formatters_import = None
-    column_type_formatters_import = None
+    column_formatters_import = None  # type: dict
+    # column_type_formatters_import = None
 
     delete_after_import = True  # 导入成功后删除文件
 

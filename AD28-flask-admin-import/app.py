@@ -47,7 +47,7 @@ class Post(db.Model):
     update_datetime = db.Column(db.DateTime, onupdate=dt.datetime.now)
     money = db.Column(db.DECIMAL(10, 4))
     # 导入会出现bug
-    # language = db.Column(db.Enum('python', 'flask'))
+    language = db.Column(db.Enum('python', 'flask'))
 
     tags = db.relationship('Tag', secondary=post_tags_table)
 
@@ -65,7 +65,12 @@ class PostModelView(ModelViewImportMixin, ModelView):
     can_view_details = True
     can_delete = False
 
-    # column_list = ('title', 'tags', 'date')
+    column_list = (
+        'title', 'slug', 'text', 'tags',
+        'price', 'money', 'is_delete', 'create_date', 'create_time',
+        'update_datetime',
+        'language',
+    )
     column_exclude_list = ('text',)
     column_labels = {
         'title': '标题',
@@ -76,10 +81,10 @@ class PostModelView(ModelViewImportMixin, ModelView):
 
     can_export = True
     column_export_list = (
-        'title', 'slug', 'text',
+        'title', 'slug', 'text', 'tags',
         'price', 'money', 'is_delete', 'create_date', 'create_time',
         'update_datetime',
-        'language',
+        # 'language',
     )
     export_types = ['xls', 'xlsx', 'csv', 'json']
     export_max_rows = 0
