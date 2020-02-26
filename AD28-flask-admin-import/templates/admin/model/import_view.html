@@ -31,9 +31,9 @@
         <hr>
         <div class="form-group">
         <div class="col-md-offset-2 col-md-10 submit-row">
-            <input type="submit" class="btn btn-success" value="{{ _gettext('Submit') }}"/>
-            <a class="btn btn-primary" href="{{ url_for('.download_import_template') }}">下载模板</a>
-            <a href="{{ cancel_url }}" class="btn btn-danger" role="button" {% if is_modal %}data-dismiss="modal"{% endif %}>{{ _gettext('Cancel') }}</a>
+            <input type="submit" class="btn btn-success" value="上传数据并导入"/>
+            <a class="btn btn-primary" href="{{ url_for('.download_import_template') }}">下载导入数据模板</a>
+            <a href="{{ cancel_url }}" class="btn btn-default" role="button" {% if is_modal %}data-dismiss="modal"{% endif %}>返回</a>
         </div>
         </div>
     {% endcall %}

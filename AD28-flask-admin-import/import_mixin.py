@@ -43,15 +43,20 @@ class ModelViewImportMixin(UploadFormMixin):
 
     form_base_class = BaseForm
     import_types = ('xls', 'xlsx', 'csv', 'json')
-    import_filepath = temppath
     import_title = 'Import'
     import_template_filename = None
     import_columns = None
     import_exclude_columns = None
     column_import_list = []
-    allowed_extensions = import_types
-    storage = LocalFileStorage(import_filepath)
-    delete_after_import = False
+
+    delete_after_import = True  # 导入成功后删除文件
+
+    import_path = temppath
+    storage = LocalFileStorage(import_path)
+
+    def set_path(self, path):
+        self.import_path = path
+        self.storage = LocalFileStorage(path)
 
     def _normalize_path(self, path):
         """
@@ -132,7 +137,7 @@ class ModelViewImportMixin(UploadFormMixin):
         if ext.startswith('.'):
             ext = ext[1:]
 
-        if self.allowed_extensions and ext not in self.allowed_extensions:
+        if self.import_types and ext not in self.import_types:
             return False
 
         return True
