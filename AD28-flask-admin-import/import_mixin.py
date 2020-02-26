@@ -45,7 +45,7 @@ class ModelViewImportMixin(UploadFormMixin):
     import_template = 'admin/model/import_view.html'
 
     form_base_class = BaseForm
-    import_types = ('xls', 'xlsx', 'csv')
+    import_types = ('xls', 'xlsx', 'csv', 'json')
     import_filepath = temppath
     import_title = 'Import'
     import_template_filename = None
